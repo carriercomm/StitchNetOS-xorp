@@ -219,12 +219,13 @@ RandomGen::RandomGen()
 	    file = fopen("/var/tmp/rtrmgr-seed", "w");
 	if (file != NULL) {
 	    uint8_t outbuf[16];
+		size_t result;
 	    MD5_CTX md5_context;
 	    MD5_Init(&md5_context);
 	    MD5_Update(&md5_context, _random_data, RAND_POOL_SIZE);
 	    MD5_Final(outbuf, &md5_context);
-	    fwrite(outbuf, 1, 16, file);
-	    fwrite(&d, 1, sizeof(d), file);
+	    result = fwrite(outbuf, 1, 16, file);
+	    result = fwrite(&d, 1, sizeof(d), file);
 	    fclose(file);
 	}
 #endif // ! HOST_OS_WINDOWS

@@ -65,6 +65,7 @@ CrashDumpManager::unregister_dumper(CrashDumper *dumper)
 void
 CrashDumpManager::crash_dump()
 {
+	size_t result;
     FILE *dumpfile;
 
 #ifndef HOST_OS_WINDOWS
@@ -85,10 +86,10 @@ CrashDumpManager::crash_dump()
     }
 
     list <CrashDumper*>::iterator i;
-    for (i = _dumpers.begin(); i != _dumpers.end(); i++) {
-	string s = (*i)->dump_state();
-	fwrite(s.c_str(), 1, s.size(), dumpfile);
-    }
+	for (i = _dumpers.begin(); i != _dumpers.end(); i++) {
+			string s = (*i)->dump_state();
+			result = fwrite(s.c_str(), 1, s.size(), dumpfile);
+	}
 
     fclose(dumpfile);
 }

@@ -1,0 +1,4 @@
+*.pyc
+*.txt
+build_info.cc
+xorp/obj
