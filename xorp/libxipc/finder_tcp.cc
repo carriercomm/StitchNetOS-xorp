@@ -300,6 +300,8 @@ FinderTcpListenerBase::FinderTcpListenerBase(EventLoop& e,
 	xorp_throw(InvalidAddress, "Not a configured IPv4 address");
     }
 
+    XLOG_INFO("Creating a listener on %s port %d", interface.str().c_str(), port);
+
     _lsock = comm_bind_tcp4(&if_ia, htons(port), COMM_SOCK_NONBLOCKING);
     if (!_lsock.is_valid()) {
 	xorp_throw(InvalidPort, comm_get_last_error_str());
@@ -353,6 +355,7 @@ FinderTcpListenerBase::connect_hook(XorpFd fd, IoEventType type)
 
     UNUSED(fd);
     XorpFd sock;
+    XLOG_INFO("In FinderTcpListenerBase");
 
     sock = comm_sock_accept(_lsock.getSocket());
     if (!sock.is_valid()) {
@@ -370,7 +373,7 @@ FinderTcpListenerBase::connect_hook(XorpFd fd, IoEventType type)
 
     IPv4 peer(name);
     if (host_is_permitted(peer)) {
-	debug_msg("Created socket %s\n", sock.str().c_str());
+	XLOG_INFO("Created socket %s from peer:%s\n", sock.str().c_str(), peer.str().c_str());
 	if (comm_sock_set_blocking(sock.getSocket(), COMM_SOCK_NONBLOCKING) != XORP_OK) {
 	    XLOG_WARNING("Failed to set socket non-blocking.");
 	    return;

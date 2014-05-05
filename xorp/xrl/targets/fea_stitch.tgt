@@ -1,0 +1,4 @@
+#include "common.xif"
+#include "fea_stitch.xif"
+
+target FeaStitch implements fea_stitch/0.1;

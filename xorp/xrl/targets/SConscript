@@ -64,6 +64,7 @@ tgts = [
     'test_peer.tgt',
     'test_socket4.tgt',
     'test_xrls.tgt',
+    'fea_stitch.tgt',
     ]
 
 if env['enable_bgp']:

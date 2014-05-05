@@ -3207,6 +3207,8 @@ XrlFeaTarget::ifmgr_replicator_0_1_register_ifmgr_mirror(
 {
     string error_msg;
 
+    XLOG_INFO("Registering interface manger mirror client %s", clientname.c_str());
+
     if (_lib_fea_client_bridge.add_libfeaclient_mirror(clientname) != XORP_OK) {
 	error_msg = c_format("Cannot register ifmgr mirror client %s",
 			     clientname.c_str());

@@ -1,0 +1,124 @@
+# Copyright (c) 2009-2011 XORP, Inc and Others
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, Version 2, June
+# 1991 as published by the Free Software Foundation. Redistribution
+# and/or modification of this program under the terms of any other
+# version of the GNU General Public License is not permitted.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
+# see the GNU General Public License, Version 2, a copy of which can be
+# found in the XORP LICENSE.gpl file.
+#
+# XORP Inc, 2953 Bunker Hill Lane, Suite 204, Santa Clara, CA 95054, USA;
+# http://xorp.net
+
+# $XORP$
+
+import os
+Import('env')
+
+env = env.Clone()
+
+is_shared = env.has_key('SHAREDLIBS')
+
+env.AppendUnique(CPPPATH = [
+    '#',
+    '$BUILDDIR',
+    ])
+
+env.PrependUnique(LIBPATH = [
+    '$BUILDDIR/libxorp',
+    '$BUILDDIR/libcomm',
+    '$BUILDDIR/libxipc',
+    '$BUILDDIR/libproto',
+    '$BUILDDIR/libfeaclient',
+    '$BUILDDIR/policy/backend',
+    '$BUILDDIR/policy/common',
+    '$BUILDDIR/xrl/interfaces',
+    '$BUILDDIR/xrl/targets',
+    '.'
+    ])
+
+env.AppendUnique(LIBS = [
+    'xorp_fea_client',
+    'xif_fea_ifmgr_mirror',
+    'xif_fea_ifmgr_replicator',
+    'xif_finder_event_notifier',
+    'xst_fea_ifmgr_mirror',
+    'xst_fea_stitch',
+    'xif_finder_event_notifier',
+    'xorp_policy_backend',
+    'xorp_policy_common',
+    'xorp_ipc',
+    'xorp_core',
+    'xorp_proto',
+    'xorp_comm',
+    ])
+
+if not is_shared:
+    env.AppendUnique(LIBS = [
+        "crypto",
+        ])
+
+    if not (env.has_key('mingw') and env['mingw']):
+        env.AppendUnique(LIBS = [
+            "rt",
+            ])
+
+if (env.has_key('mingw') and env['mingw']):
+    env.AppendUnique(LIBS = [
+        'ws2_32',
+        'iphlpapi',
+#        'mprapi',
+        'regex',
+        'winmm',
+        ])
+
+    env.Append(LIBS = ['xorp_core'])
+
+env.Replace(RPATH = [
+    env.Literal(env['xorp_module_rpath'])
+])
+
+libxorp_fea_stitch_srcs = [
+    'xrl_fea_stitch_node.cc'
+    ]
+
+xorp_fea_stitch_srcs = [
+    'xrl_fea_stitch_node.cc',
+    'xorp_fea_stitch.cc'
+    ]
+
+if is_shared:
+    libxorp_fea_stitch = env.SharedLibrary(
+	target = 'libxorp_fea_stitch',
+	source = libxorp_fea_stitch_srcs,
+	LIBS = '')
+    if env['rtld_origin']:
+        for obj in libxorp_fea_stitch:
+            env.AddPostAction(libxorp_fea_stitch,
+                env.Symlink(obj.abspath,
+                            os.path.join(env['xorp_alias_libdir'], str(obj))))
+else:
+    libxorp_fea_stitch = env.StaticLibrary(
+	target = 'libxorp_fea_stitch',
+	source = libxorp_fea_stitch_srcs,
+	LIBS = '')
+
+xorp_fea_stitch = env.Program(target = 'xorp_fea_stitch',
+				 source = xorp_fea_stitch_srcs)
+if env['enable_builddirrun']:
+    for obj in xorp_fea_stitch:
+        env.AddPostAction(xorp_fea_stitch,
+            env.Symlink(obj.abspath,
+                os.path.join(env['xorp_alias_moduledir'], str(obj))))
+env.Alias('install', env.InstallProgram(env['xorp_moduledir'], xorp_fea_stitch))
+
+if is_shared:
+    env.Alias('install',
+              env.InstallLibrary(env['xorp_libdir'], libxorp_fea_stitch))
+
+Default(xorp_fea_stitch)

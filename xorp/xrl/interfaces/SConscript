@@ -78,6 +78,7 @@ xifs = [
     'test_peer.xif',
     'test.xif',
     'test_xrls.xif',
+    'fea_stitch.xif',
     ]
 
 if env['enable_bgp']:

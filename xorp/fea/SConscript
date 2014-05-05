@@ -84,6 +84,7 @@ libxorp_fea_linkorder += [
     'xif_fea_rawpkt4_client',
     'xif_socket4_user',
     'xif_finder_event_notifier',
+    'xif_fea_stitch',
     'xorp_cli',
     'xif_cli_processor',
     'xorp_fea_client',
@@ -183,7 +184,8 @@ libxorp_fea_srcs = [
      'xrl_io_ip_manager.cc',
      'xrl_io_link_manager.cc',
      'xrl_io_tcpudp_manager.cc',
-     'xrl_mfea_node.cc'
+     'xrl_mfea_node.cc',
+     'xrl_fea_stitch_manager.cc'
     ]
 
 if not (env.has_key('disable_fw') and env['disable_fw']):
