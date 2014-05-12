@@ -23,7 +23,15 @@
 
 #include "libxipc/xrl_std_router.hh"
 #include "xrl/interfaces/finder_event_notifier_xif.hh"
+#include "xrl/interfaces/fea_stitch_register_xif.hh"
 #include "xrl/targets/fea_stitch_base.hh"
+
+enum {
+    FEA_STITCH_SHUTDOWN,
+    FEA_STITCH_BOOTING,
+    FEA_STITCH_REGISTERED
+};
+
 //
 //The top-level class that wraps-up everything together under one roof
 //This is the entry point for all XRL calls into FEA stitch.
@@ -32,7 +40,7 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
 {
     public:
         XrlFeaStitchNode(EventLoop& eventloop,
-            const string& class_name,
+            const string& UID,
             const string& finder_hostname,
             const uint16_t finder_port,
             const string& finder_target,
@@ -60,7 +68,19 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
          */
         XrlRouter& xrl_router() {return *this; };
 
+        /**
+         * Check with the stitch FEA has registered with the FEA.
+         * @return status of stitch FEA registration
+         */
+        bool registered();
+
         bool is_done();
+        void fea_stitch_register_cb(const XrlError& xrl_error, const string* UID);
+
+        /**
+         * Returns the UID associated with this object
+         */
+        string getUID();
     
     protected:
         //
@@ -75,7 +95,9 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
     private:
         const string& _finder_target;
         const string& _fea_target;
-        bool running;
+        int status;
+        string UID;
+        XrlFeaStitchRegisterV0p1Client _xrl_fea_stitch_register;
 
 };
 #endif

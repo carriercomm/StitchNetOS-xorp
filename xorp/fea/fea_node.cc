@@ -61,7 +61,8 @@ FeaNode::FeaNode(EventLoop& eventloop, FeaIo& fea_io, bool is_dummy)
       _io_link_manager(*this, ifconfig().merged_config()),
       _io_ip_manager(*this, ifconfig().merged_config()),
       _io_tcpudp_manager(*this, ifconfig().merged_config()),
-      _fea_io(fea_io)
+      _fea_io(fea_io),
+      _fea_stitch_store(eventloop)
 {
 }
 
@@ -369,3 +370,22 @@ FeaNode::unload_data_plane_managers(string& error_msg)
 
     return (XORP_OK);
 }
+
+void FeaNode::register_fea_stitch_inst(string& UID, IPvX &ip)
+{
+    FeaStitchInst* inst;
+    
+    if ((inst = _fea_stitch_store.find_fea_stitch(UID)) != NULL) {
+        XLOG_INFO("FEA stitch instance with UID:%s already registerd with LC-ID:%d", UID.c_str(), inst->LCId);
+        /* The IP address for the FEA stitch instance might have changed so
+         * reset it 
+         */
+        inst->ip = ip;
+        return;
+    } else {
+        /* Allocate a UID and line-card number*/
+        _fea_stitch_store.allocUID(UID);
+        _fea_stitch_store.add(UID, _fea_stitch_store.getNextAvailLCId(), ip);
+    }
+}
+

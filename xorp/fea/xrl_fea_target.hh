@@ -28,6 +28,7 @@
 //
 
 #include "xrl/targets/fea_base.hh"
+#include "xrl/interfaces/fea_stitch_xif.hh"
 #include "xrl_fib_client_manager.hh"
 
 class EventLoop;
@@ -2735,6 +2736,12 @@ public:
 	string&	info);
 #endif
 
+    /*
+     * Stitch specific interfaces.
+     */
+    XrlCmdError fea_stitch_register_0_1_register_fea_stitch( const IPv4& ip, const string& iUID, string&   UID);
+    void stitch_fea_print_hello_world_cb(const XrlError& error);
+
 private:
     /**
      * Add/remove a multicast MAC address on an interface.
@@ -2790,6 +2797,7 @@ private:
     IoIpManager&		_io_ip_manager;
     IoTcpUdpManager&		_io_tcpudp_manager;
     LibFeaClientBridge&		_lib_fea_client_bridge;
+    XrlFeaStitchV0p1Client _stitch_lc_fea;
 
     bool	_is_running;	// True if the service is running
     bool	_is_shutdown_received; // True if shutdown XRL request received

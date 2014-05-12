@@ -81,6 +81,7 @@ usage(const char *argv0, int exit_value)
 
 static void
 fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
+    string UID = "FEA-STITCH";
 
     setup_dflt_sighandlers();
 
@@ -92,25 +93,56 @@ fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
     //
     // FEA stitch node
     //
-    XrlFeaStitchNode xrl_fea_stitch_node(
+    XrlFeaStitchNode *xrl_fea_stitch_node = new XrlFeaStitchNode(
 	eventloop,
-	"fea_stitch",
+	UID,
 	finder_hostname,
 	finder_port,
 	"finder",
 	"fea");
     wait_until_xrl_router_is_ready(eventloop,
-				   xrl_fea_stitch_node.xrl_router());
+				   xrl_fea_stitch_node->xrl_router());
     XLOG_INFO("Connected to XRL finder");
 
     // Startup
-    xrl_fea_stitch_node.startup();
-    XLOG_INFO("Ready to run");
+    xrl_fea_stitch_node->startup();
+    //Wait till the stitch FEA node has registered with the FEA.
+    while(!xrl_fea_stitch_node->registered()) {
+        eventloop.run();
+    }
 
+    XLOG_INFO("Initial registration with FEA with UID:%s complete.", UID.c_str());
+    XLOG_INFO("New UID:%s", (xrl_fea_stitch_node->getUID()).c_str());
+    //Re-register with the finder with UID retrieved from the FEA as the class
+    //name
+    if (UID != xrl_fea_stitch_node->getUID()) {
+        UID = xrl_fea_stitch_node->getUID();
+        delete xrl_fea_stitch_node;
+
+        XrlFeaStitchNode *xrl_fea_stitch_node = new XrlFeaStitchNode(
+                eventloop,
+                UID,
+                finder_hostname,
+                finder_port,
+                "finder",
+                "fea");
+        wait_until_xrl_router_is_ready(eventloop,
+                xrl_fea_stitch_node->xrl_router());
+        xrl_fea_stitch_node->startup();
+        XLOG_INFO("Re-connected with finder with UID:%s", UID.c_str());
+        //Wait till the stitch FEA with the new FEA is registered with the FEA.
+        while(!xrl_fea_stitch_node->registered()) {
+            eventloop.run();
+        }
+        XLOG_INFO("Re-registration with FEA with UID:%s complete.", UID.c_str());
+    }
+    
+    
+    XLOG_INFO("Stitch FEA:%s ready for execution.", UID.c_str());
     //
     // Main loop
     //
-    while (xorp_do_run && !xrl_fea_stitch_node.is_done()) {
+    while (xorp_do_run && !xrl_fea_stitch_node->is_done()) {
         eventloop.run();
     }
 }

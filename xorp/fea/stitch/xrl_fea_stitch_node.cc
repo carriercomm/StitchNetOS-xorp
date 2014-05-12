@@ -21,42 +21,85 @@
 
 
 XrlFeaStitchNode::XrlFeaStitchNode(EventLoop& eventloop,
-            const string& class_name,
+            const string& UID,
             const string& finder_hostname,
             const uint16_t finder_port,
             const string& finder_target,
             const string& fea_target)
-            : XrlStdRouter(eventloop, class_name.c_str(), finder_hostname.c_str(), finder_port),
+            : XrlStdRouter(eventloop, UID.c_str(), finder_hostname.c_str(), finder_port),
             XrlFeastitchTargetBase(&xrl_router()),
             _finder_target(finder_target),
-            _fea_target(fea_target)
+            _fea_target(fea_target),
+            _xrl_fea_stitch_register(&xrl_router())
 
 {
-    running = false;
+    this->UID = UID;
+    status = FEA_STITCH_SHUTDOWN;
 }
 
 XrlFeaStitchNode::~XrlFeaStitchNode()
 {
 }
 
+void XrlFeaStitchNode::fea_stitch_register_cb(const XrlError& xrl_error, const string* UID)
+{
+    switch(xrl_error.error_code()) {
+        case OKAY:
+            XLOG_INFO("Stitch LC-FEA registered successfully with FEA.UID:%s", UID->c_str());
+            status = FEA_STITCH_REGISTERED;
+            this->UID = *UID;
+            break;
+        case COMMAND_FAILED:
+            XLOG_INFO("Could not register with FEA.");
+            break;
+        default:
+            XLOG_INFO("FEA returned unkown error.");
+            break;
+    }
+
+}
+
 
 int XrlFeaStitchNode::startup(void) 
 {
-    running = true;
-    XLOG_INFO("Starting XRL interface of FEA stitch node");
+    bool success = true;
+    IPv4 ip;
+
+    status = FEA_STITCH_BOOTING;
+    XLOG_INFO("Registering with global FEA with UID:%s", this->UID.c_str());
+    success = _xrl_fea_stitch_register.send_register_fea_stitch("fea", ip, this->UID,
+    callback(this, &XrlFeaStitchNode::fea_stitch_register_cb));
+
+    if (!success) {
+        XLOG_WARNING("Unable to register with global FEA");
+        return XORP_ERROR;
+    }
+
+    XLOG_INFO("Successfully sent the registration request to FEA");
+    
     return XORP_OK;
 }
 
 int XrlFeaStitchNode::shutdown(void)
 {
-    running = false;
+    status = FEA_STITCH_SHUTDOWN;
     XLOG_INFO("Shutting down XRL interface of FEA stitch node");
     return XORP_OK;
 }
 
+bool XrlFeaStitchNode::registered(void)
+{
+    return (this->status == FEA_STITCH_REGISTERED);
+}
+
+string XrlFeaStitchNode::getUID(void)
+{
+    return this->UID;
+}
+
 bool XrlFeaStitchNode::is_done(void)
 {
-    return !running;
+    return (status != FEA_STITCH_REGISTERED);
 }
 
 XrlCmdError XrlFeaStitchNode::fea_stitch_0_1_enable_fea_stitch( const bool& enable)
@@ -77,7 +120,7 @@ XrlCmdError XrlFeaStitchNode::fea_stitch_0_1_stop_fea_stitch()
 
 XrlCmdError XrlFeaStitchNode::fea_stitch_0_1_print_hello_world( const string&   str)
 {
-    XLOG_INFO("%s",str.c_str());
+    XLOG_INFO("Received:%s",str.c_str());
     return XrlCmdError::OKAY();
 }
 

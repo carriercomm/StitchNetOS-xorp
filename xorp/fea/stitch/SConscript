@@ -49,6 +49,7 @@ env.AppendUnique(LIBS = [
     'xif_finder_event_notifier',
     'xst_fea_ifmgr_mirror',
     'xst_fea_stitch',
+    'xif_fea_stitch_register',
     'xif_finder_event_notifier',
     'xorp_policy_backend',
     'xorp_policy_common',
