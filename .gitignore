@@ -1,5 +1,7 @@
 *.pyc
 *.txt
+*.gz
+xorpfs/
 build_info.cc
 xorp/obj
 cscope*
