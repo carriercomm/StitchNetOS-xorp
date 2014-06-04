@@ -88,6 +88,7 @@ XrlFeaTarget::XrlFeaTarget(EventLoop&			eventloop,
       _io_ip_manager(fea_node.io_ip_manager()),
       _io_tcpudp_manager(fea_node.io_tcpudp_manager()),
       _lib_fea_client_bridge(lib_fea_client_bridge),
+      _stitch_lc_fea(&xrl_router),
       _is_running(false),
       _is_shutdown_received(false)
 #ifdef XORP_USE_CLICK
@@ -3207,6 +3208,8 @@ XrlFeaTarget::ifmgr_replicator_0_1_register_ifmgr_mirror(
 {
     string error_msg;
 
+    XLOG_INFO("Registering interface manger mirror client %s", clientname.c_str());
+
     if (_lib_fea_client_bridge.add_libfeaclient_mirror(clientname) != XORP_OK) {
 	error_msg = c_format("Cannot register ifmgr mirror client %s",
 			     clientname.c_str());
@@ -4842,5 +4845,50 @@ XrlFeaTarget::profile_0_1_list(string& info)
     info = _profile.get_list();
     return XrlCmdError::OKAY();
 }
+
+/*
+ * Stitch management interfaces
+ */
+
+void XrlFeaTarget::stitch_fea_print_hello_world_cb(const XrlError& xrl_error) 
+{
+   switch(xrl_error.error_code()) {
+    case OKAY:
+        XLOG_INFO("Delivered message to new STITCH-FEA");
+        break;
+    default:
+        XLOG_INFO("STITCH FEA returned unknown error");
+        break;
+   }
+}
+XrlCmdError
+XrlFeaTarget::fea_stitch_register_0_1_register_fea_stitch(
+        const IPv4& ip4 , const string& iUID, string &UID)
+{
+    IPvX ip(ip4);
+    string check_UID = iUID;
+    XLOG_INFO("Got a registration request from FEA stitch module:%s with UID:%s", 
+            ip.str().c_str(), iUID.c_str());
+    /*
+     * Check if the UID field is already set. If it is set, then check if we
+     * have the UID field in our database. If we have it in our database, change
+     * the state to ALIVE, and send a response back with the UID of this FEA
+     * stitch instance.
+     */
+    _fea_node.register_fea_stitch_inst(check_UID, ip);
+    if (iUID == check_UID) {
+        string hello_str = "Hi " + iUID;
+        bool success;
+        //This has already been registered say hello.
+        success = _stitch_lc_fea.send_print_hello_world(iUID.c_str(), hello_str, 
+                callback(this, &XrlFeaTarget::stitch_fea_print_hello_world_cb));
+        if (!success) {
+            XLOG_INFO("Unable to ping stitch FEA:%s", iUID.c_str());
+        }
+    }
+    UID = check_UID;
+    return XrlCmdError::OKAY();
+}
+
 
 #endif //profile

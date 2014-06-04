@@ -39,6 +39,7 @@
 #include "io_ip_manager.hh"
 #include "io_tcpudp_manager.hh"
 #include "nexthop_port_mapper.hh"
+#include "fea_stitch_store.hh"
 
 class EventLoop;
 class FeaIo;
@@ -69,7 +70,7 @@ public:
      * 
      * @return XORP_OK on success, otherwise XORP_ERROR.
      */
-    int		startup();
+    virtual int		startup();
 
     /**
      * Shutdown the service operation.
@@ -78,14 +79,14 @@ public:
      *
      * @return XORP_OK on success, otherwise XORP_ERROR.
      */
-    int		shutdown();
+    virtual int		shutdown();
 
     /**
      * Test whether the service is running.
      *
      * @return true if the service is still running, otherwise false.
      */
-    bool	is_running() const;
+    virtual bool	is_running() const;
 
     /**
      * Return true if the underlying system supports IPv4.
@@ -208,6 +209,22 @@ public:
      * @return reference to the FEA I/O instance.
      */
     FeaIo& fea_io() { return (_fea_io); }
+    
+    /**
+     * Register a specific FEA stitch instance. 
+     * @param UID if the FEA stitch instance was allocated a UID this field
+     * would have been set. If the FEA does not find the FEA stitch instance in
+     * its database than it will reset the UID to a new value. 
+     * @param LCId The LCId is set to the LC value assigned to this UID.
+     * @param IPvX the IP address used by the FEA stitch instance to communicate
+     * with the FEA. Ideally we should be able to dervie these values from the
+     * XRL connection, however we don't seem to have a straightforward mechanism
+     * to retrieve this info from the XRL call that will be made to register the
+     * FEA stitch instance with FEA.
+     * @return an object representing this FEA stitch instance that has been
+     * registers.
+     */
+    void register_fea_stitch_inst(string &UID, IPvX &ip);
 
 private:
     /**
@@ -247,6 +264,7 @@ private:
     list<FeaDataPlaneManager*>	_fea_data_plane_managers;
 
     FeaIo&			_fea_io;	// The FeaIo entry to use
+    FeaStitchStore _fea_stitch_store;
 };
 
 #endif // __FEA_FEA_NODE_HH__

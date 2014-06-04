@@ -5,4 +5,8 @@ xorpfs/
 build_info.cc
 xorp/obj
 cscope*
+xorpfs/*
+xorpfs
+*.gz
+*.swp
 

@@ -1,0 +1,28 @@
+/*
+ * Stitch FEA XRL interface.
+ */
+
+
+interface fea_stitch/0.1 {
+
+	/**
+	 * Enable/disable/start/stop Stitch FEA.
+	 *
+	 * @param enable if true, then enable StaticRoutes, otherwise
+	 * disable it.
+	 */
+	enable_fea_stitch	? enable:bool;
+	start_fea_stitch;
+	stop_fea_stitch;
+    
+    /*print hello world */
+    print_hello_world ? str:txt;
+
+	/**
+	 * Enable/disable the Stitch fea trace log for all operations.
+	 *
+	 * @param enable if true, then enable the trace log, otherwise
+	 * disable it.
+	 */
+	enable_log_trace_all	? enable:bool;
+}

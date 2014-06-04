@@ -59,6 +59,7 @@ XrlFeaNode::XrlFeaNode(EventLoop& eventloop, const string& xrl_fea_targetname,
       _xrl_io_link_manager(_fea_node.io_link_manager(), _xrl_router),
       _xrl_io_ip_manager(_fea_node.io_ip_manager(), _xrl_router),
       _xrl_io_tcpudp_manager(_fea_node.io_tcpudp_manager(), _xrl_router),
+      _xrl_fea_stitch_manager(_xrl_router),
       _cli_node4(AF_INET, XORP_MODULE_CLI, _eventloop),
       _xrl_cli_node(_eventloop, _cli_node4.module_name(), finder_hostname,
 		    finder_port,
@@ -92,6 +93,7 @@ XrlFeaNode::~XrlFeaNode()
 int
 XrlFeaNode::startup()
 {
+    XrlError error;
     wait_until_xrl_router_is_ready(eventloop(), xrl_router());
 
     if (! fea_node().is_dummy()) {
@@ -124,7 +126,8 @@ XrlFeaNode::startup()
 	_xrl_mfea_node6.enable_cli();
 	_xrl_mfea_node6.start_cli();
 #endif
-    }
+    _xrl_fea_stitch_manager.startup();
+   }
 
     return (XORP_OK);
 }

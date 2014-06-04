@@ -37,6 +37,7 @@
 #include "xrl_io_ip_manager.hh"
 #include "xrl_io_tcpudp_manager.hh"
 #include "xrl_mfea_node.hh"
+#include "xrl_fea_stitch_manager.hh"
 
 class EventLoop;
 
@@ -150,6 +151,7 @@ private:
     XrlIoLinkManager	_xrl_io_link_manager;	// Link raw I/O manager
     XrlIoIpManager	_xrl_io_ip_manager;	// IP raw I/O manager
     XrlIoTcpUdpManager	_xrl_io_tcpudp_manager;	// TCP/UDP I/O manager
+    XrlFeaStitchManager _xrl_fea_stitch_manager; //This is the XRL interface for the stitch manager
 
     // MFEA-related stuff
     // TODO: XXX: This should be refactored and better integrated with the FEA.

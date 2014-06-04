@@ -31,6 +31,7 @@ subdirs = [
     #'xrl/tests',		# XXX not in use.
     'etc/templates',
     'fea',
+    'fea/stitch',
     'fib2mrib',
     'mld6igmp',
     'mrt',

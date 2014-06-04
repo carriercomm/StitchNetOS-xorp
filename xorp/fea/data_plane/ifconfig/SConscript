@@ -67,10 +67,13 @@ if env['enable_fea_dummy']:
         ]
 
 if is_shared:
-    libxifc = env.SharedLibrary(target = 'libxorp_fea_ifconfig',
-				source = sources)
+    print "Building shared library"
+    libxifc = env.SharedLibrary(target = 'libxorp_fea_ifconfig', source = sources)
+    env.Depends(libxifc, sources)
+    print "Done building shared library"
     if env['rtld_origin']:
         for obj in libxifc:
+            print  "Building obj:" + str(obj)
             env.AddPostAction(libxifc,
                 env.Symlink(obj.abspath,
                             os.path.join(env['xorp_alias_libdir'], str(obj))))

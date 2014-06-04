@@ -1,0 +1,14 @@
+/*
+ * Stitch FEA regsiter XRL interface. FEA stitch modules will use this interface
+ * to register with the global FEA.
+ */
+
+
+interface fea_stitch_register/0.1 {
+    /**
+     * API to register with the global FEA.
+     */
+    register_fea_stitch ? ip:ipv4  \
+                         & iuid:txt \
+                         -> uid:txt  ;
+}
