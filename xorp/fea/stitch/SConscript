@@ -39,24 +39,58 @@ env.PrependUnique(LIBPATH = [
     '$BUILDDIR/policy/common',
     '$BUILDDIR/xrl/interfaces',
     '$BUILDDIR/xrl/targets',
+    '$BUILDDIR/mrt',
+    '$BUILDDIR/cli/libtecla',
+    '$BUILDDIR/cli',
+    '$BUILDDIR/fea/data_plane/managers',
+    '$BUILDDIR/fea/data_plane/fibconfig',
+    '$BUILDDIR/fea/data_plane/ifconfig',
+    '$BUILDDIR/fea/data_plane/io',
+    '$BUILDDIR/fea/data_plane/control_socket',
+    '$BUILDDIR/fea/data_plane/firewall',
+    '$BUILDDIR/fea',
     '.'
     ])
 
 env.AppendUnique(LIBS = [
-    'xorp_fea_client',
-    'xif_fea_ifmgr_mirror',
-    'xif_fea_ifmgr_replicator',
-    'xif_finder_event_notifier',
-    'xst_fea_ifmgr_mirror',
-    'xst_fea_stitch',
-    'xif_fea_stitch_register',
-    'xif_finder_event_notifier',
-    'xorp_policy_backend',
-    'xorp_policy_common',
-    'xorp_ipc',
-    'xorp_core',
-    'xorp_proto',
-    'xorp_comm',
+        'xorp_fea_data_plane_managers',
+        'xorp_fea_fibconfig',
+        'xorp_fea_io',
+        'xorp_fea_control_socket',
+        'xorp_fea_ifconfig',
+        'xif_fea_fib_client',
+        'xif_fea_rawlink_client',
+        'xif_fea_rawpkt4_client',
+        'xif_socket4_user',
+        'xif_finder_event_notifier',
+        'xif_fea_stitch',
+        'xorp_tecla',
+        'xorp_cli',
+        'xif_cli_processor',
+        'xorp_fea_client',
+        'xif_finder_event_notifier',
+        'xst_fea_stitch',
+        'xif_fea_stitch_register',
+        'xif_fea_ifmgr_mirror',   # XXX?
+        'xif_fea_ifmgr_replicator', # XXX?
+        'xst_fea_ifmgr_mirror', # XXX?
+        'xif_cli_manager',
+        'xif_mfea_client',
+        'xst_cli',
+        'xst_fea',
+        'xst_mfea',
+        'xorp_mrt',
+        'xorp_policy_backend',
+        'xorp_policy_common',
+        'xorp_ipc',
+        'xorp_core',
+        'xorp_proto',
+        'xorp_comm',
+        'xif_socket6_user',
+        'xif_fea_rawpkt6_client',
+        'xorp_fea_firewall',
+        'xif_profile_client',
+        'xorp_fea',
     ])
 
 if not is_shared:
@@ -85,10 +119,12 @@ env.Replace(RPATH = [
 ])
 
 libxorp_fea_stitch_srcs = [
-    'xrl_fea_stitch_node.cc'
+    'xrl_fea_stitch_node.cc',
+    'fea_stitch_node.cc'
     ]
 
 xorp_fea_stitch_srcs = [
+    'fea_stitch_node.cc',
     'xrl_fea_stitch_node.cc',
     'xorp_fea_stitch.cc'
     ]

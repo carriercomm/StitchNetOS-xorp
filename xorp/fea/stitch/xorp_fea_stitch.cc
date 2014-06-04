@@ -13,7 +13,6 @@
 // see the GNU General Public License, Version 2, a copy of which can be
 // found in the XORP LICENSE.gpl file.
 //
-// XORP StaticRoutes module implementation.
 //
 
 #include "fea_stitch_module.h"
@@ -105,7 +104,7 @@ fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
     XLOG_INFO("Connected to XRL finder");
 
     // Startup
-    xrl_fea_stitch_node->startup();
+    xrl_fea_stitch_node->init();
     //Wait till the stitch FEA node has registered with the FEA.
     while(!xrl_fea_stitch_node->registered()) {
         eventloop.run();
@@ -119,7 +118,7 @@ fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
         UID = xrl_fea_stitch_node->getUID();
         delete xrl_fea_stitch_node;
 
-        XrlFeaStitchNode *xrl_fea_stitch_node = new XrlFeaStitchNode(
+        xrl_fea_stitch_node = new XrlFeaStitchNode(
                 eventloop,
                 UID,
                 finder_hostname,
@@ -128,7 +127,7 @@ fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
                 "fea");
         wait_until_xrl_router_is_ready(eventloop,
                 xrl_fea_stitch_node->xrl_router());
-        xrl_fea_stitch_node->startup();
+        xrl_fea_stitch_node->init();
         XLOG_INFO("Re-connected with finder with UID:%s", UID.c_str());
         //Wait till the stitch FEA with the new FEA is registered with the FEA.
         while(!xrl_fea_stitch_node->registered()) {
@@ -137,14 +136,21 @@ fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
         XLOG_INFO("Re-registration with FEA with UID:%s complete.", UID.c_str());
     }
     
+
+    //start the stitch node
+    xrl_fea_stitch_node->startup();
     
     XLOG_INFO("Stitch FEA:%s ready for execution.", UID.c_str());
+
+    //Read all the physical ports and build the port-map
+ 
     //
     // Main loop
     //
     while (xorp_do_run && !xrl_fea_stitch_node->is_done()) {
         eventloop.run();
     }
+    XLOG_INFO("Ending stitch execution !! xorp_do_run:%d, stitch_is_done:%d, status:%d", xorp_do_run, xrl_fea_stitch_node->is_done(), xrl_fea_stitch_node->getStatus());
 }
 
 int

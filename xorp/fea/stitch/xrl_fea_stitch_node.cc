@@ -25,16 +25,18 @@ XrlFeaStitchNode::XrlFeaStitchNode(EventLoop& eventloop,
             const string& finder_hostname,
             const uint16_t finder_port,
             const string& finder_target,
-            const string& fea_target)
-            : XrlStdRouter(eventloop, UID.c_str(), finder_hostname.c_str(), finder_port),
+            const string& fea_target ) : 
+            XrlStdRouter(eventloop, UID.c_str(), finder_hostname.c_str(), finder_port),
             XrlFeastitchTargetBase(&xrl_router()),
+             _xrl_fea_io(eventloop, *this, finder_target),
+             _fea_stitch_node(eventloop,"stitch_port_tree", "stitch_if_tree", _xrl_fea_io), 
             _finder_target(finder_target),
             _fea_target(fea_target),
             _xrl_fea_stitch_register(&xrl_router())
 
 {
-    this->UID = UID;
-    status = FEA_STITCH_SHUTDOWN;
+    this->_UID = UID;
+    _status = FEA_STITCH_SHUTDOWN;
 }
 
 XrlFeaStitchNode::~XrlFeaStitchNode()
@@ -46,8 +48,8 @@ void XrlFeaStitchNode::fea_stitch_register_cb(const XrlError& xrl_error, const s
     switch(xrl_error.error_code()) {
         case OKAY:
             XLOG_INFO("Stitch LC-FEA registered successfully with FEA.UID:%s", UID->c_str());
-            status = FEA_STITCH_REGISTERED;
-            this->UID = *UID;
+            _status = FEA_STITCH_REGISTERED;
+            this->_UID = *UID;
             break;
         case COMMAND_FAILED:
             XLOG_INFO("Could not register with FEA.");
@@ -60,14 +62,14 @@ void XrlFeaStitchNode::fea_stitch_register_cb(const XrlError& xrl_error, const s
 }
 
 
-int XrlFeaStitchNode::startup(void) 
+int XrlFeaStitchNode::init(void) 
 {
     bool success = true;
     IPv4 ip;
 
-    status = FEA_STITCH_BOOTING;
-    XLOG_INFO("Registering with global FEA with UID:%s", this->UID.c_str());
-    success = _xrl_fea_stitch_register.send_register_fea_stitch("fea", ip, this->UID,
+    _status = FEA_STITCH_BOOTING;
+    XLOG_INFO("Registering with global FEA with UID:%s", this->_UID.c_str());
+    success = _xrl_fea_stitch_register.send_register_fea_stitch("fea", ip, this->_UID,
     callback(this, &XrlFeaStitchNode::fea_stitch_register_cb));
 
     if (!success) {
@@ -80,26 +82,33 @@ int XrlFeaStitchNode::startup(void)
     return XORP_OK;
 }
 
+/**
+ * Start the node. Read the physical ports and build a port map. 
+ */
+int XrlFeaStitchNode::startup(void)
+{
+    //start the stitch node. This in turn should initialize the data-plane
+    //manager.
+    _fea_stitch_node.startup();
+    return XORP_OK;
+}
+
 int XrlFeaStitchNode::shutdown(void)
 {
-    status = FEA_STITCH_SHUTDOWN;
+    _status = FEA_STITCH_SHUTDOWN;
     XLOG_INFO("Shutting down XRL interface of FEA stitch node");
     return XORP_OK;
 }
 
 bool XrlFeaStitchNode::registered(void)
 {
-    return (this->status == FEA_STITCH_REGISTERED);
+    return (this->_status == FEA_STITCH_REGISTERED);
 }
 
-string XrlFeaStitchNode::getUID(void)
-{
-    return this->UID;
-}
 
 bool XrlFeaStitchNode::is_done(void)
 {
-    return (status != FEA_STITCH_REGISTERED);
+    return (this->_status != FEA_STITCH_REGISTERED);
 }
 
 XrlCmdError XrlFeaStitchNode::fea_stitch_0_1_enable_fea_stitch( const bool& enable)

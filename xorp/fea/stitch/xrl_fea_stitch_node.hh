@@ -25,11 +25,13 @@
 #include "xrl/interfaces/finder_event_notifier_xif.hh"
 #include "xrl/interfaces/fea_stitch_register_xif.hh"
 #include "xrl/targets/fea_stitch_base.hh"
+#include "fea/xrl_fea_io.hh"
+#include "fea_stitch_node.hh"
 
 enum {
-    FEA_STITCH_SHUTDOWN,
-    FEA_STITCH_BOOTING,
-    FEA_STITCH_REGISTERED
+    FEA_STITCH_SHUTDOWN = 0,
+    FEA_STITCH_BOOTING = 1,
+    FEA_STITCH_REGISTERED = 2
 };
 
 //
@@ -46,11 +48,16 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
             const string& finder_target,
             const string& fea_target);
         virtual ~XrlFeaStitchNode();
-        /*
-         * Startup the node. Registers with the XRL finder. If it's not able to
+        /**
+         * Init the node. Registers with the XRL finder. If it's not able to
          * connect with finder keep trying every 10 seconds. Once we have
          * connected with the finder, we need to register with the global FEA.
          * @return XORP_OK on sucess, otherwise XORP_ERROR
+         */
+        int init();
+        /*
+         * Startup the node. 
+         * @return XORP_OK on success, otherwise XORP_ERROR
          */
         int startup();
 
@@ -80,7 +87,8 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
         /**
          * Returns the UID associated with this object
          */
-        string getUID();
+        string getUID() {return _UID;};
+        int getStatus() { return _status;};
     
     protected:
         //
@@ -92,11 +100,13 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
         XrlCmdError fea_stitch_0_1_stop_fea_stitch();
         XrlCmdError fea_stitch_0_1_print_hello_world(const string&   str);
         XrlCmdError fea_stitch_0_1_enable_log_trace_all( const bool& enable);
+        XrlFeaIo _xrl_fea_io;
+        FeaStitchNode _fea_stitch_node;
     private:
         const string& _finder_target;
         const string& _fea_target;
-        int status;
-        string UID;
+        int _status;
+        string _UID;
         XrlFeaStitchRegisterV0p1Client _xrl_fea_stitch_register;
 
 };

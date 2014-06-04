@@ -70,7 +70,7 @@ public:
      * 
      * @return XORP_OK on success, otherwise XORP_ERROR.
      */
-    int		startup();
+    virtual int		startup();
 
     /**
      * Shutdown the service operation.
@@ -79,14 +79,14 @@ public:
      *
      * @return XORP_OK on success, otherwise XORP_ERROR.
      */
-    int		shutdown();
+    virtual int		shutdown();
 
     /**
      * Test whether the service is running.
      *
      * @return true if the service is still running, otherwise false.
      */
-    bool	is_running() const;
+    virtual bool	is_running() const;
 
     /**
      * Return true if the underlying system supports IPv4.
