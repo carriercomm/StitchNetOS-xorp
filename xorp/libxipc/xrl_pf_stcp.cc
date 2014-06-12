@@ -485,6 +485,7 @@ XrlPFSTCPListener::XrlPFSTCPListener(EventLoop&	    e,
     }
 
     _address_slash_port = address_slash_port(addr, port);
+    XLOG_INFO("Creating listener on %s:%d", addr.c_str(), port);
     _eventloop.add_ioevent_cb(_sock, IOT_ACCEPT,
 			     callback(this, &XrlPFSTCPListener::connect_hook));
 }

@@ -136,6 +136,7 @@ XrlStdRouter::XrlStdRouter(EventLoop&	eventloop,
     : XrlRouter(eventloop, class_name, finder_address,
 		FinderConstants::FINDER_DEFAULT_PORT())
 {
+    XLOG_INFO("Value of unix_socket:0x%x", unix_socket);
     construct(unix_socket);
 }
 
