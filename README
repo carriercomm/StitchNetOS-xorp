@@ -56,5 +56,45 @@
   and informing the XORP FEA about the physical interfaces existing in the
   data-plane module, and providing interfaces to XORP FEA to download FIB,
   bridge and firewall rules. 
-                                                                                                        
 
+
+  BUILDING STITCHNETOS
+  =================================================================================
+  StitchNetOS is pretty much built on top of XORP, so the build infrastructure
+  is identical to that of XORP. The build infrasture uses Scons to build all the
+  binaries. You can read more about Scons here: http://www.scons.org/
+  * To build StitchNetOS in the same folder in which the source exits:
+                From the top director run:
+                scons enable_builddirrun=true
+  * To install the built binaries at a specific folder:
+                scons prefix=`pwd`/xorpfs install
+
+                The above command will install all the binaries under
+                `pwd`/xorpfs. You can change the prefix parameter to any folder
+                where you want to install the binaries. 
+                                                                                                        
+  INSTALLING STITCHNETOS IN  VM
+  ================================================================================
+  StitchNetOS is in its nascent stages, so at present the control-plane and
+  data-plane VMs share the same image. We just start different binaries on the
+  control and data-plane VMs. Installing StitchNetOS is pretty straight foward. 
+   * Tar and gzip the folder in which the StitchNetOS binaries were installed.
+    For the example given above you would do tar -cvzf `pwd`/xorpfs, from the
+    top-directory. 
+   * Copy the gzipped file to the control and data-plane VM root home directory.
+     NOTE: Currently we will be running the control and data-plane as root. This
+     is a big security hole in StitchNetOS at this point. In the future we will
+     move StitchNetOS operations to be restricted to a non-root user role to
+     give better access control to StitchNetOS. 
+
+    * Under the $HOME for root you shoudl un-gzip the copied file. 
+
+
+
+  RUNNING STITCHNETOS
+  ===============================================================================
+  StitchNetOS is a distributed network OS, so at the very least we will need
+  two VMs to run StitchNetOS. The control-plane VM and the data-plane VM. On the
+  Ctonrol-plane VM we need at least two processes to be running the xorp_rtmgr
+  process and the xorp_fea process. On the data-plane we need the
+  xorp_fea_stitch process to be running.
