@@ -15,18 +15,21 @@
 //
 //
 #include "fea_stitch_node.hh"
+#include "fea/data_plane/managers/fea_data_plane_manager_linux.hh"
 FeaStitchNode::FeaStitchNode(EventLoop &event_loop, const string& _pt_name, 
         const string& _ift_name, FeaIo&_fea_io):FeaNode(event_loop, _fea_io, false),
     _port_tree(_pt_name),
     _if_tree(_ift_name.c_str())
 {
+    _stitch_dpm_linux = new FeaDataPlaneManagerLinux(*this);
 }
 
 
 int FeaStitchNode::startup() 
 {
-    FeaNode::startup();
-    XLOG_INFO("FEA Node startup done");
+    string error_str = "Unable to load the linux plugins for stitch FEA node";
+    _stitch_dpm_linux->load_plugins(error_str);
+    XLOG_INFO("Stitch FEA Node startup done");
     return XORP_OK;
 }
 

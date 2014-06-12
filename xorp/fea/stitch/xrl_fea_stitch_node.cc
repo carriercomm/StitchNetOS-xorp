@@ -55,7 +55,7 @@ void XrlFeaStitchNode::fea_stitch_register_cb(const XrlError& xrl_error, const s
             XLOG_INFO("Could not register with FEA.");
             break;
         default:
-            XLOG_INFO("FEA returned unkown error.");
+            XLOG_INFO("FEA returned unkown error.:%d", xrl_error.error_code());
             break;
     }
 
