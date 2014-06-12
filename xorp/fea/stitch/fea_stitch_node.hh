@@ -20,6 +20,7 @@
 #include "libxorp/eventloop.hh"
 #include "fea/fea_node.hh"
 #include "fea/port_mgr_base.hh"
+#include "fea/fea_data_plane_manager.hh"
 
 class FeaStitchDataPlaneIF;
 
@@ -35,6 +36,7 @@ class FeaStitchNode :public FeaNode{
         FeaPortTree _port_tree;
         //if tree
         IfTree _if_tree;
+        FeaDataPlaneManager* _stitch_dpm_linux;
         //fib
         //firewall
         //mfib
