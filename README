@@ -133,4 +133,27 @@
         you should find the xorp_fea processes listening on a bunch of ports >
         30000. NOTE: All the TCP servers should be listening on the IP address
         specified in the environment variable. XORP_FINDER_CLIENT_ADDRESS
+
+  * Data-plane (DP) VM:
+    The data-plane VM will run only one XORP process, specific to StitchNetOS,
+    the xorp_fea_stitch. To run the xorp_fea_stitch process follow these steps:
+    * Set XORP_HOME to xorp installation directory. 'export XORP_HOME=<xorp home directory>'
+    top-directory of the XORP installed file system. 
+
+    * Set the XORP_FINDER_CLIENT_ADDRESS environment variable:
+    export XORP_FINDER_CLIENT_ADDRESS=<XRL communication IP>
+
+    The XORP_FINDER_CLIENT_ADDRESS is the address on which
+    all XRL ports will
+    be opened by different XRL processes. These are IP
+    address and ports on
+    which the XRL processes listen to for
+    handling XRL requests.
+
+    * Run the following command as root:
+        $XORP_HOME/lib/xorp/sbin/xorp_fea_stitch -F <ip address of cp VM>
+
+    * To check that the process is running run "netstat -t", it will show that
+     the xorp_fea_stitch has established a TCP connection. 
+
     
