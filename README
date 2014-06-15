@@ -98,3 +98,39 @@
   Ctonrol-plane VM we need at least two processes to be running the xorp_rtmgr
   process and the xorp_fea process. On the data-plane we need the
   xorp_fea_stitch process to be running.
+
+  * Control-plane (CP) VM:
+    For any XORP IPC communication to take place, we need to have a finder which
+    will resolve XRL requests from any XORP IPC clients. Therefore the process
+    that has to run on the CP VM is the router-manager.  To run xorp
+    router-manager run the following command.
+    * Set XORP_HOME to xorp installation directory. 'export XORP_HOME=<xorp home directory>'
+    top-directory of the XORP installed file system. 
+
+    * Set the XORP_FINDER_CLIENT_ADDRESS environment variable: 
+        export XORP_FINDER_CLIENT_ADDRESS=<XRL communication IP>
+       
+       The XORP_FINDER_CLIENT_ADDRESS is the address on which all XRL ports will
+       be opened by different XRL processes. These are IP address and ports on
+       which the XRL processes listen to for handling XRL requests.
+
+    * Run the following command as root.
+    $XORP_HOME/sbin/xorp_rtrmgr -t $XORP_HOME/share/xorp/templates/  \
+        -i <XRL communication ip address> \
+        -n <subnet from which XRL connections are accepted>  \
+        -m $XORP_HOME/lib/xorp/sbin/  \
+        -b/etc/xorp/xorp.conf'
+
+        To see all the options that xorp_rtrmgr support run $XORP_HOME/sbin/xorp_rtrmgr -h
+        NOTE: The xorp.conf is essential for start xorp_rtrmgr and making it
+        start the xorp FEA process which is what all the DP stitch FEA proceses
+        will talk to.
+
+    * To confirm that the XORP processes are running correctly, run the command:
+        netstat -t | grep "LISTEN"
+
+        You should see the finder (xorp_rtrmgr) listening on port 19999. Also
+        you should find the xorp_fea processes listening on a bunch of ports >
+        30000. NOTE: All the TCP servers should be listening on the IP address
+        specified in the environment variable. XORP_FINDER_CLIENT_ADDRESS
+    
