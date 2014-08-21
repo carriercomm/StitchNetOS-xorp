@@ -26,9 +26,12 @@ class FeaStitchInst
 {
     public:
         FeaStitchInst(string &UID, int LCId, IPvX &ip);
+		unsigned int getNextAvailPortNum();
+		void resetNextAvailPortNum();
         string UID;
         int LCId;
         IPvX ip;
+		unsigned int last_port;
 };
 
 typedef map<std::string, FeaStitchInst>::iterator FeaStitchStoreIt;
@@ -43,13 +46,13 @@ typedef map<std::string, FeaStitchInst>::iterator FeaStitchStoreIt;
  * UID. Apart from the UID and the line-card number we also need to store
  * meta-data about the FEA stitch instance such as the IP address and the MAC
  * address and the protocol family used to talk XRL semantics with the FEA
- * stitch instance. 
+ * stitch instance.
  */
 class FeaStitchStore
 {
     public:
        FeaStitchStore(EventLoop& _events);
-       FeaStitchInst* find_fea_stitch(const string& UID);  
+       FeaStitchInst* find_fea_stitch(const string& UID);
        FeaStitchInst* find_fea_stitch(const int LCId);
        FeaStitchInst* find_fea_stitch(const IPvX& ip);
        void add(string &UID, int LCId, IPvX &ip);
@@ -57,13 +60,17 @@ class FeaStitchStore
        bool remove(const string &UID);
        bool remove (const int &LCId);
        bool remove (const IPvX &ip);
-       void allocUID(string &UID); //Get a new UID and LCId 
+       void allocUID(string &UID); //Get a new UID and LCId
        int getNextAvailLCId();
+	   void insert_slot_to_uid_mapping (int slot, string uid);
+	   map<int, string> fea_stitch_slot_to_uid_map() {return _fea_stitch_slot_to_uid_map;}
+	   int find_fea_stitch_slot(const string &UID);
        //TODO: Implement an iterator to be able to iterate through all instances
        //of FEA stitch that were seen.
     private:
         EventLoop& _event_loop;
         map<string, FeaStitchInst> _fea_stitch_store;
+		map<int, string> _fea_stitch_slot_to_uid_map;
         int maxLC; //Maximum allocated line-card number.
 };
 #endif //__FEA_STITCH_TREE_HH__

@@ -1,3 +1,4 @@
+
 // -*- c-basic-offset: 4; tab-width: 8; indent-tabs-mode: t -*-
 // vim:set sts=4 ts=8:
 
@@ -16,23 +17,89 @@
 //
 //
 #include "fea_stitch_store.hh"
-
+#include "fea_module.h"
+#include "libxorp/xlog.h"
 
 FeaStitchInst::FeaStitchInst(string &UID, int LCId, IPvX &ip)
 {
     this->UID = UID;
     this->LCId = LCId;
     this->ip = ip;
+	this->last_port = 0;
+}
+
+unsigned int FeaStitchInst::getNextAvailPortNum()
+{
+	return ++last_port;
+}
+
+void FeaStitchInst::resetNextAvailPortNum()
+{
+	this->last_port = 0;
+}
+
+/* Create the slot to uid map from the file uid_map */
+int FeaStitchStore::init_slot_num_to_uid_map ()
+{
+	int slot = 0;
+	string uid;
+
+	FILE *fp = fopen("/root/uid_map", "r");
+	if (!fp)
+		return 0;
+
+	char *buf = 0;
+	size_t buflen = 0;
+
+	while(getline(&buf, &buflen, fp) > 0) {
+		char *nl = strchr(buf, '\n');
+		if (nl == NULL)
+			continue;
+		*nl = 0;
+
+		char *sep = strchr(buf, '=');
+		if (sep == NULL)
+			continue;
+		*sep = 0;
+		sep++;
+
+		slot = atoi(buf);
+		uid = sep;
+
+		_fea_stitch_slot_to_uid_map[slot] = uid;
+	}
+
+	if (buf) {
+		 free(buf);
+	}
+
+	fclose(fp);
+
+	 return slot;
 }
 
 FeaStitchStore::FeaStitchStore(EventLoop &events):_event_loop(events)
 {
-    maxLC = 0;
+	this->maxLC = 0;
+    this->maxLC = init_slot_num_to_uid_map();
 }
 
 int FeaStitchStore::getNextAvailLCId()
 {
-    return ++maxLC;
+    return ++(this->maxLC);
+}
+
+int FeaStitchStore::find_fea_stitch_slot(const string &UID)
+{
+	map<int, string>::iterator _fea_stitch_it = _fea_stitch_slot_to_uid_map.begin();
+
+    for (; _fea_stitch_it != _fea_stitch_slot_to_uid_map.end(); _fea_stitch_it++) {
+		if (_fea_stitch_it->second == UID) {
+			return (_fea_stitch_it->first);
+		}
+    }
+
+    return -1;
 }
 
 /*
@@ -49,7 +116,7 @@ FeaStitchInst* FeaStitchStore::find_fea_stitch(const string& UID)
     }
 
     return NULL;
-    
+
 }
 
 FeaStitchInst* FeaStitchStore::find_fea_stitch(const int LCId)
@@ -89,7 +156,7 @@ void FeaStitchStore::add(string &UID, int LCId, IPvX &ip)
 void FeaStitchStore::add(FeaStitchInst& _fea_stitch)
 {
     _fea_stitch_store.insert(std::make_pair(_fea_stitch.UID, _fea_stitch));
-    
+
 }
 
 bool FeaStitchStore::remove(const string &UID)
@@ -136,5 +203,17 @@ void FeaStitchStore::allocUID(string& UID)
     UID = curr_time.str();
 }
 
+void FeaStitchStore::insert_slot_to_uid_mapping (int slot, string uid)
+{
+	_fea_stitch_slot_to_uid_map[slot] = uid;
 
+	FILE *fp = fopen("/root/uid_map", "a");
+    if (!fp) {
+		XLOG_INFO("Not able to open file for writing");
+        return;
+    }
 
+    fprintf(fp, "%d=%s\n", slot, uid.c_str());
+
+    fclose(fp);
+}

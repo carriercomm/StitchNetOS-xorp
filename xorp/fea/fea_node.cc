@@ -62,7 +62,8 @@ FeaNode::FeaNode(EventLoop& eventloop, FeaIo& fea_io, bool is_dummy)
       _io_ip_manager(*this, ifconfig().merged_config()),
       _io_tcpudp_manager(*this, ifconfig().merged_config()),
       _fea_io(fea_io),
-      _fea_stitch_store(eventloop)
+      _fea_stitch_store(eventloop),
+      _port_tree("fea-port-tree")
 {
 }
 
@@ -374,18 +375,26 @@ FeaNode::unload_data_plane_managers(string& error_msg)
 void FeaNode::register_fea_stitch_inst(string& UID, IPvX &ip)
 {
     FeaStitchInst* inst;
-    
+	int slot = 0;
+
     if ((inst = _fea_stitch_store.find_fea_stitch(UID)) != NULL) {
         XLOG_INFO("FEA stitch instance with UID:%s already registerd with LC-ID:%d", UID.c_str(), inst->LCId);
         /* The IP address for the FEA stitch instance might have changed so
-         * reset it 
+         * reset it
          */
         inst->ip = ip;
+		inst->resetNextAvailPortNum();
         return;
     } else {
-        /* Allocate a UID and line-card number*/
-        _fea_stitch_store.allocUID(UID);
-        _fea_stitch_store.add(UID, _fea_stitch_store.getNextAvailLCId(), ip);
+    	if ((slot = _fea_stitch_store.find_fea_stitch_slot(UID)) == -1) {
+	        /* Allocate a UID and line-card number*/
+	        _fea_stitch_store.allocUID(UID);
+			slot = 	_fea_stitch_store.getNextAvailLCId();
+			_fea_stitch_store.insert_slot_to_uid_mapping(slot, UID);
+			XLOG_INFO("Allocated a new UID:%s and slot :%d", UID.c_str(), slot);
+    	}
+		XLOG_INFO("Adding stitch instance with UID:%s and slot :%d", UID.c_str(), slot);
+        _fea_stitch_store.add(UID, slot, ip);
     }
 }
 

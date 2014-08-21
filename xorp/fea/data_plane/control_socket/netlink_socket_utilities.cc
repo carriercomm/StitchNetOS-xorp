@@ -808,10 +808,14 @@ void NlmUtils::nlm_cond_newlink_to_fea_cfg(const IfTree& user_cfg, IfTree& iftre
     //XLOG_WARNING("newlink, interface: %s  tree: %s\n", if_name.c_str(), iftree.getName().c_str());
     debug_msg("newlink, interface: %s  tree: %s\n", if_name.c_str(), iftree.getName().c_str());
 
+	UNUSED(user_cfg);
+	/* Pull interfaces from the system even if they haven't been configured by the user */
+#if 0
     if (! user_cfg.find_interface(if_name)) {
 	debug_msg("Ignoring interface: %s as it is not found in the local config.\n", if_name.c_str());
 	return;
     }
+#endif
 
     modified = true; // this is just for optimization..so if we somehow don't modify things, it's not a big deal.
 

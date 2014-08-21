@@ -4890,5 +4890,50 @@ XrlFeaTarget::fea_stitch_register_0_1_register_fea_stitch(
     return XrlCmdError::OKAY();
 }
 
+XrlCmdError
+XrlFeaTarget::fea_stitch_ifconfig_0_1_upload_port_information(
+	const string& uid, const string& ifname, const uint32_t& port_num, const uint32_t& ifindex,
+	const Mac& mac,	const uint32_t& flags, const uint32_t& mtu,
+	const uint64_t& speed, const bool& no_carrier, string& ret_ifname, uint32_t& ret_port_num)
+
+{
+    XLOG_INFO("Got port information from stitch fea %s %s %u", uid.c_str(), ifname.c_str(), port_num);
+
+	string frontend_ifname;
+	FeaStitchInst* inst;
+	unsigned int port = port_num;
+	ret_port_num = 0;
+
+    if ((inst = _fea_node.feaStitchStore().find_fea_stitch(uid)) == NULL) {
+		string em = c_format("Could not find fea stitch instance with uid %s", uid.c_str());
+		return XrlCmdError::COMMAND_FAILED(em.c_str());
+    }
+
+	if (port == 0) {
+		port = inst->getNextAvailPortNum();
+		ret_port_num = port;
+	}
+	ret_ifname = ifname;
+	char numstr[64];
+	sprintf(numstr, "%d/%d", inst->LCId, port);
+	frontend_ifname =  numstr;
+
+	IfTreeInterface *iface = _fea_node.port_tree().find_interface(frontend_ifname);
+
+	if (iface == NULL) {
+		_fea_node.port_tree().add_interface(frontend_ifname);
+		iface = _fea_node.port_tree().find_interface(frontend_ifname);
+	}
+
+	iface->set_pif_index(ifindex);
+    iface->set_enabled(flags & IFF_UP);
+    iface->set_mtu(mtu);
+    iface->set_mac(mac);
+    iface->set_no_carrier(no_carrier);
+    iface->set_baudrate(speed);
+    iface->set_interface_flags(flags);
+
+    return XrlCmdError::OKAY();
+}
 
 #endif //profile

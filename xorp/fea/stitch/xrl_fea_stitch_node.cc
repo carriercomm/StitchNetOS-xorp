@@ -25,13 +25,14 @@ XrlFeaStitchNode::XrlFeaStitchNode(EventLoop& eventloop,
             const string& finder_hostname,
             const uint16_t finder_port,
             const string& finder_target,
-            const string& fea_target ) : 
+            const string& fea_target ) :
             XrlStdRouter(eventloop, UID.c_str(), finder_hostname.c_str(), finder_port),
             XrlFeastitchTargetBase(&xrl_router()),
              _xrl_fea_io(eventloop, *this, finder_target),
-             _fea_stitch_node(eventloop,"stitch_port_tree", "stitch_if_tree", _xrl_fea_io), 
+             _fea_stitch_node(eventloop,"stitch_port_tree", "stitch_if_tree", _xrl_fea_io),
             _finder_target(finder_target),
             _fea_target(fea_target),
+            _xrl_fea_stitch_ifconfig(&xrl_router()),
             _xrl_fea_stitch_register(&xrl_router())
 
 {
@@ -137,4 +138,53 @@ XrlCmdError XrlFeaStitchNode::fea_stitch_0_1_enable_log_trace_all( const bool& e
 {
     XLOG_INFO("FEA stitch log %d", enable);
     return XrlCmdError::OKAY();
+}
+
+void XrlFeaStitchNode::upload_port_information_to_fea_cb(const XrlError& xrl_error, const string* ifname, const uint32_t* port_num)
+{
+    switch(xrl_error.error_code()) {
+        case OKAY:
+            XLOG_INFO("Port information updated successfully in FEA. Returned port num: %u", *port_num);
+			if (*port_num) {
+				_fea_stitch_node.insert_port_num_to_intf_name_map(*port_num, *ifname);
+			}
+            break;
+        case COMMAND_FAILED:
+            XLOG_INFO("Could not update port information to FEA.");
+            break;
+        default:
+            XLOG_INFO("FEA returned unkown error.:%d", xrl_error.error_code());
+            break;
+    }
+}
+
+int XrlFeaStitchNode::upload_port_information_to_fea(void)
+{
+    bool success = true;
+	IfTree *iftree = new IfTree("lc-system-config");
+	IfTree::IfMap::const_iterator iter;
+	unsigned int port_num;
+
+	XLOG_INFO("Uploading port information to CP-FEA");
+
+	_fea_stitch_node.stitch_dpm_linux()->ifconfig_get()->pull_config(NULL, *iftree);
+
+    for (iter = iftree->interfaces().begin();
+	 	 iter != iftree->interfaces().end(); ++iter) {
+
+		const IfTreeInterface& iface = *(iter->second);
+		port_num = _fea_stitch_node.find_port_num_from_intf_name(iface.ifname());
+
+		success = _xrl_fea_stitch_ifconfig.send_upload_port_information("fea",
+						getUID().c_str(), iface.ifname().c_str(), port_num, iface.pif_index(), iface.mac(),
+			        	iface.interface_flags(), iface.mtu(), iface.baudrate(), iface.no_carrier(),
+			        	callback(this, &XrlFeaStitchNode::upload_port_information_to_fea_cb));
+
+		if (!success) {
+	        XLOG_WARNING("Unable to update port information to FEA");
+	        return XORP_ERROR;
+	    }
+	}
+
+    return XORP_OK;
 }

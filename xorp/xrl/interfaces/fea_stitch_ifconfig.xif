@@ -1,0 +1,19 @@
+/*
+ * FEA will implement this interface to receive port updates from fea stitch
+ */
+
+
+interface fea_stitch_ifconfig/0.1 {
+
+    upload_port_information ? uid:txt \
+                            & ifname:txt \
+                            & portnum:u32 \
+                            & ifindex:u32 \
+                            & mac:mac \
+                            & flags:u32 \
+                            & mtu:u32 \
+                            & speed:u64 \
+                            & no_carrier:bool \
+                            -> ret_ifname:txt \
+                            & retportnum:u32;
+}

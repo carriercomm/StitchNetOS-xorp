@@ -23,6 +23,7 @@
 
 #include "libxipc/xrl_std_router.hh"
 #include "xrl/interfaces/finder_event_notifier_xif.hh"
+#include "xrl/interfaces/fea_stitch_ifconfig_xif.hh"
 #include "xrl/interfaces/fea_stitch_register_xif.hh"
 #include "xrl/targets/fea_stitch_base.hh"
 #include "fea/xrl_fea_io.hh"
@@ -88,13 +89,16 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
          * Returns the UID associated with this object
          */
         string getUID() {return _UID;};
+		void setUID(string& UID) {_UID = UID;};
         int getStatus() { return _status;};
-    
+
+		void upload_port_information_to_fea_cb(const XrlError& xrl_error, const string* ret_ifname, const uint32_t* port_num);
+		int upload_port_information_to_fea(void);
     protected:
         //
         // XRL target methods
         //
-        // 
+        //
         XrlCmdError fea_stitch_0_1_enable_fea_stitch(const bool& enable);
         XrlCmdError fea_stitch_0_1_start_fea_stitch();
         XrlCmdError fea_stitch_0_1_stop_fea_stitch();
@@ -107,7 +111,8 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
         const string& _fea_target;
         int _status;
         string _UID;
-        XrlFeaStitchRegisterV0p1Client _xrl_fea_stitch_register;
+        XrlFeaStitchIfconfigV0p1Client _xrl_fea_stitch_ifconfig;
+		XrlFeaStitchRegisterV0p1Client _xrl_fea_stitch_register;
 
 };
 #endif

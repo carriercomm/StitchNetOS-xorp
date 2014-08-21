@@ -226,6 +226,10 @@ public:
      */
     void register_fea_stitch_inst(string &UID, IPvX &ip);
 
+	FeaStitchStore& feaStitchStore() { return (_fea_stitch_store); }
+
+	IfTree& port_tree() { return (_port_tree); }
+
 private:
     /**
      * Load the data plane managers.
@@ -265,6 +269,7 @@ private:
 
     FeaIo&			_fea_io;	// The FeaIo entry to use
     FeaStitchStore _fea_stitch_store;
+	IfTree		   _port_tree;
 };
 
 #endif // __FEA_FEA_NODE_HH__

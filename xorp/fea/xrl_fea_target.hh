@@ -2741,6 +2741,9 @@ public:
      */
     XrlCmdError fea_stitch_register_0_1_register_fea_stitch( const IPv4& ip, const string& iUID, string&   UID);
     void stitch_fea_print_hello_world_cb(const XrlError& error);
+    XrlCmdError fea_stitch_ifconfig_0_1_upload_port_information(const string& uid,
+				const string& ifname, const uint32_t& port_num, const uint32_t& ifindex, const Mac& mac, const uint32_t& flags,
+				const uint32_t& mtu, const uint64_t& speed, const bool& no_carrier, string& ret_ifname, uint32_t& ret_port_num);
 
 private:
     /**
@@ -2797,7 +2800,7 @@ private:
     IoIpManager&		_io_ip_manager;
     IoTcpUdpManager&		_io_tcpudp_manager;
     LibFeaClientBridge&		_lib_fea_client_bridge;
-    XrlFeaStitchV0p1Client _stitch_lc_fea;
+	XrlFeaStitchV0p1Client _stitch_lc_fea;
 
     bool	_is_running;	// True if the service is running
     bool	_is_shutdown_received; // True if shutdown XRL request received

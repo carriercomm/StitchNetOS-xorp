@@ -6,7 +6,7 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
@@ -78,9 +78,21 @@ usage(const char *argv0, int exit_value)
     // NOTREACHED
 }
 
+bool is_empty(fstream& pFile)
+{
+    return pFile.peek() == fstream::traits_type::eof();
+}
+
 static void
 fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
     string UID = "FEA-STITCH";
+	fstream f_uid;
+
+	f_uid.open("/root/uid", fstream::in);
+	if (f_uid.is_open() && !is_empty(f_uid)) {
+		getline(f_uid, UID);
+	}
+	f_uid.close();
 
     setup_dflt_sighandlers();
 
@@ -102,6 +114,8 @@ fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
     wait_until_xrl_router_is_ready(eventloop,
 				   xrl_fea_stitch_node->xrl_router());
     XLOG_INFO("Connected to XRL finder");
+
+	xrl_fea_stitch_node->setUID(UID);
 
     // Startup
     xrl_fea_stitch_node->init();
@@ -134,16 +148,23 @@ fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
             eventloop.run();
         }
         XLOG_INFO("Re-registration with FEA with UID:%s complete.", UID.c_str());
+
+		f_uid.open("/root/uid", fstream::out | fstream::trunc);
+		if (!f_uid.is_open()) {
+			XLOG_ERROR("Unable to open uid mapping file in fea");
+		}
+
+		f_uid << UID;
+		f_uid.close();
     }
-    
 
     //start the stitch node
     xrl_fea_stitch_node->startup();
-    
+
     XLOG_INFO("Stitch FEA:%s ready for execution.", UID.c_str());
 
     //Read all the physical ports and build the port-map
- 
+    xrl_fea_stitch_node->upload_port_information_to_fea();
     //
     // Main loop
     //
