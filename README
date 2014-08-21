@@ -73,7 +73,7 @@
                 `pwd`/xorpfs. You can change the prefix parameter to any folder
                 where you want to install the binaries. 
                                                                                                         
-  INSTALLING STITCHNETOS IN  VM
+  INSTALLING STITCHNETOS ON A VM
   ================================================================================
   StitchNetOS is in its nascent stages, so at present the control-plane and
   data-plane VMs share the same image. We just start different binaries on the
@@ -87,7 +87,7 @@
      move StitchNetOS operations to be restricted to a non-root user role to
      give better access control to StitchNetOS. 
 
-    * Under the $HOME for root you shoudl un-gzip the copied file. 
+    * Under the $HOME for root you should un-gzip the copied file. 
 
 
 
@@ -122,7 +122,7 @@
         -b/etc/xorp/xorp.conf'
 
         To see all the options that xorp_rtrmgr support run $XORP_HOME/sbin/xorp_rtrmgr -h
-        NOTE: The xorp.conf is essential for start xorp_rtrmgr and making it
+        NOTE: The xorp.conf is essential for starting xorp_rtrmgr and making it
         start the xorp FEA process which is what all the DP stitch FEA proceses
         will talk to.
 
