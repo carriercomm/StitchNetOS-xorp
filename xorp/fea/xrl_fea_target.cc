@@ -4903,6 +4903,7 @@ XrlFeaTarget::fea_stitch_ifconfig_0_1_upload_port_information(
 	FeaStitchInst* inst;
 	unsigned int port = port_num;
 	ret_port_num = 0;
+	UNUSED(ifindex);
 
     if ((inst = _fea_node.feaStitchStore().find_fea_stitch(uid)) == NULL) {
 		string em = c_format("Could not find fea stitch instance with uid %s", uid.c_str());
@@ -4925,7 +4926,7 @@ XrlFeaTarget::fea_stitch_ifconfig_0_1_upload_port_information(
 		iface = _fea_node.port_tree().find_interface(frontend_ifname);
 	}
 
-	iface->set_pif_index(ifindex);
+	iface->set_pif_index(0);
     iface->set_enabled(flags & IFF_UP);
     iface->set_mtu(mtu);
     iface->set_mac(mac);
