@@ -62,6 +62,7 @@ class FeaStitchStore
        bool remove (const IPvX &ip);
        void allocUID(string &UID); //Get a new UID and LCId
        int getNextAvailLCId();
+	   int init_slot_num_to_uid_map ();
 	   void insert_slot_to_uid_mapping (int slot, string uid);
 	   map<int, string> fea_stitch_slot_to_uid_map() {return _fea_stitch_slot_to_uid_map;}
 	   int find_fea_stitch_slot(const string &UID);
