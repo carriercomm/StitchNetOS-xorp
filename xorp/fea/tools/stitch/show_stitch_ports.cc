@@ -26,10 +26,10 @@ void SwitchPortMgr::fea_register_callback(const XrlError& xrl_error)
             _status = STITCH_PORT_MIRROR_REGISTERED;
             break;
         case COMMAND_FAILED:
-            XLOG_INFO("Could not register with FEA.");
+            XLOG_ERROR("Could not register with FEA.");
             break;
         default:
-            XLOG_INFO("FEA returned unkown error.:%d", xrl_error.error_code());
+            XLOG_ERROR("FEA returned unkown error.:%d", xrl_error.error_code());
             break;
     }
 
@@ -40,7 +40,7 @@ int SwitchPortMgr::start()
     int success = _fea_client.send_register_stitch_port_mirror(_fea_target.c_str(), 
             _xrl_router.instance_name(), callback(this, &SwitchPortMgr::fea_register_callback));
     if (!success) {
-        XLOG_INFO("Unable to register with FEA");
+        XLOG_ERROR("Unable to register with FEA");
         return XORP_ERROR;
     }
 
@@ -54,7 +54,7 @@ XrlCmdError SwitchPortMgr::stitch_port_mirror_0_1_port_add(const string&   port_
 {
   
     if (port_name != "NULL") {
-        XLOG_INFO("Port: %s", port_name.c_str());
+        fprintf(stdout, "Port: %s\n", port_name.c_str());
     } else {
         XLOG_INFO("Got all ports");
         _status = STITCH_PORT_MIRROR_PORTS_RECVD;
@@ -65,7 +65,7 @@ XrlCmdError SwitchPortMgr::stitch_port_mirror_0_1_port_add(const string&   port_
 XrlCmdError SwitchPortMgr::stitch_port_mirror_0_1_port_remove(const string&   port_name) 
 {
   
-  XLOG_INFO("Removing port: %s\n", port_name.c_str());
+  XLOG_INFO("Removing port: %s", port_name.c_str());
   return XrlCmdError::OKAY();
 } 
 
@@ -102,7 +102,7 @@ stitch_port_monitor_main(const string& finder_hostname, uint16_t finder_port)
 int main(int argc, char* const argv[])
 {
     int ch;
-    string finder_hostname = "192.168.75.16";//FinderConstants::FINDER_DEFAULT_HOST().str();
+    string finder_hostname = FinderConstants::FINDER_DEFAULT_HOST().str();
     uint16_t finder_port = FinderConstants::FINDER_DEFAULT_PORT();
     string print_iface_name = "";	// XXX; empty string means print all
     string command;
@@ -115,6 +115,8 @@ int main(int argc, char* const argv[])
     // XXX: verbosity of the error messages temporary increased
     xlog_level_set_verbose(XLOG_LEVEL_ERROR, XLOG_VERBOSE_HIGH);
     xlog_add_default_output();
+    xlog_disable(XLOG_LEVEL_INFO);
+    xlog_disable(XLOG_LEVEL_TRACE);
     xlog_start();
 
     //
