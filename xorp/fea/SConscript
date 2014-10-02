@@ -84,7 +84,7 @@ libxorp_fea_linkorder += [
     'xif_fea_rawpkt4_client',
     'xif_socket4_user',
     'xif_finder_event_notifier',
-    'xif_fea_stitch',
+    'xif_stitch_port_mirror',
     'xorp_cli',
     'xif_cli_processor',
     'xorp_fea_client',
@@ -99,8 +99,9 @@ libxorp_fea_linkorder += [
     'xorp_mrt',
     'xorp_proto',
     'xorp_ipc',
+    'xif_fea_stitch',
     'xorp_comm',
-    'xorp_core'
+    'xorp_core',
     ]
 
 if not (env.has_key('disable_libtecla') and env['disable_libtecla']):

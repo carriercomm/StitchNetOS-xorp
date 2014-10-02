@@ -11,3 +11,9 @@ show interfaces $(interfaces.interface.*) {
     %module: interfaces;
     %tag: HELP "Show information about a single network interface";
 }
+
+show interfaces stitch {
+    %command: "fea_show_stitch_ports" %help: HELP;
+    %module: interfaces;
+    %tag: HELP "Show information about all available stitch ports";
+}

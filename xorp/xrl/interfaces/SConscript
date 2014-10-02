@@ -80,7 +80,9 @@ xifs = [
     'test_xrls.xif',
     'fea_stitch.xif',
     'fea_stitch_register.xif',
-    'fea_stitch_ifconfig.xif'
+    'fea_stitch_ifconfig.xif',
+    'stitch_port_mirror.xif',
+    'stitch_port_replicator.xif'
     ]
 
 if env['enable_bgp']:

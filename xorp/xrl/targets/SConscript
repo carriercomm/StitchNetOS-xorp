@@ -65,6 +65,7 @@ tgts = [
     'test_socket4.tgt',
     'test_xrls.tgt',
     'fea_stitch.tgt',
+    'stitch_portmgr_mirror.tgt',
     ]
 
 if env['enable_bgp']:
