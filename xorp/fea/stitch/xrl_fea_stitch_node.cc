@@ -173,6 +173,12 @@ int XrlFeaStitchNode::upload_port_information_to_fea(void)
 	 	 iter != iftree->interfaces().end(); ++iter) {
 
 		const IfTreeInterface& iface = *(iter->second);
+
+		// Skip loopback interfaces
+		if (strncmp(iface.ifname().c_str(), "lo", 2) == 0) {
+			continue;
+		}
+
 		port_num = _fea_stitch_node.find_port_num_from_intf_name(iface.ifname());
 
 		success = _xrl_fea_stitch_ifconfig.send_upload_port_information("fea",
