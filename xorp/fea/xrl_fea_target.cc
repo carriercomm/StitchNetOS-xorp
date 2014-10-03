@@ -4930,7 +4930,7 @@ XrlFeaTarget::fea_stitch_ifconfig_0_1_upload_port_information(
 	ret_port_num = 0;
 	UNUSED(ifindex);
 
-    if ((inst = _fea_node.feaStitchStore().find_fea_stitch(uid)) == NULL) {
+    if ((inst = _fea_node.fea_stitch_store().find_fea_stitch(uid)) == NULL) {
 		string em = c_format("Could not find fea stitch instance with uid %s", uid.c_str());
 		return XrlCmdError::COMMAND_FAILED(em.c_str());
     }
@@ -4941,7 +4941,7 @@ XrlFeaTarget::fea_stitch_ifconfig_0_1_upload_port_information(
 	}
 	ret_ifname = ifname;
 	char numstr[64];
-	sprintf(numstr, "%d/%d", inst->LCId, port);
+	sprintf(numstr, "%d/%d", inst->LCId(), port);
 	frontend_ifname =  numstr;
 
 	IfTreeInterface *iface = _fea_node.port_tree().find_interface(frontend_ifname);

@@ -226,7 +226,7 @@ public:
      */
     void register_fea_stitch_inst(string &UID, IPvX &ip);
 
-	FeaStitchStore& feaStitchStore() { return (_fea_stitch_store); }
+	FeaStitchStore& fea_stitch_store() { return (_fea_stitch_store); }
 
 	IfTree& port_tree() { return (_port_tree); }
 

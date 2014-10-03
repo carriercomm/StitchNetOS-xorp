@@ -16,26 +16,27 @@
 // found in the XORP LICENSE.gpl file.
 //
 //
+#include <sstream>
 #include "fea_stitch_store.hh"
 #include "fea_module.h"
 #include "libxorp/xlog.h"
 
 FeaStitchInst::FeaStitchInst(string &UID, int LCId, IPvX &ip)
 {
-    this->UID = UID;
-    this->LCId = LCId;
-    this->ip = ip;
-	this->last_port = 0;
+    this->_UID = UID;
+    this->_LCId = LCId;
+    this->_ip = ip;
+	this->_last_port = 0;
 }
 
 unsigned int FeaStitchInst::getNextAvailPortNum()
 {
-	return ++last_port;
+	return ++_last_port;
 }
 
 void FeaStitchInst::resetNextAvailPortNum()
 {
-	this->last_port = 0;
+	this->_last_port = 0;
 }
 
 /* Create the slot to uid map from the file uid_map */
@@ -119,12 +120,19 @@ FeaStitchInst* FeaStitchStore::find_fea_stitch(const string& UID)
 
 }
 
+/*
+ *  FeaStitchStore::find_fea_stitch
+ *  @param UID search fea stitch instance stored in the store matching slot ID.
+ *  @return FeaStitchInst returns an instance of fea stitch.
+ *
+ */
+
 FeaStitchInst* FeaStitchStore::find_fea_stitch(const int LCId)
 {
     map<std::string, FeaStitchInst>::iterator _fea_stitch_it = _fea_stitch_store.begin();
 
     for (; _fea_stitch_it != _fea_stitch_store.end(); _fea_stitch_it++) {
-        if (_fea_stitch_it->second.LCId == LCId) {
+        if (_fea_stitch_it->second.LCId() == LCId) {
             return (FeaStitchInst*)(&_fea_stitch_it->second);
         }
     }
@@ -138,13 +146,24 @@ FeaStitchInst* FeaStitchStore::find_fea_stitch(const IPvX &ip)
     FeaStitchStoreIt _fea_stitch_it = _fea_stitch_store.begin();
 
     for (; _fea_stitch_it != _fea_stitch_store.end(); _fea_stitch_it++) {
-        if (_fea_stitch_it->second.ip == ip) {
+        if (_fea_stitch_it->second.ip() == ip) {
             return (FeaStitchInst*)(&_fea_stitch_it->second);
         }
     }
 
     return NULL;
 
+}
+
+FeaStitchInst* FeaStitchStore::get_intf_inst(const string ifname) 
+{
+    int LCId;
+    string lc = ifname.substr(ifname.find("/"));
+    std::istringstream(lc) >> LCId;
+
+
+    return this->find_fea_stitch(LCId);
+    
 }
 
 
@@ -155,7 +174,7 @@ void FeaStitchStore::add(string &UID, int LCId, IPvX &ip)
 
 void FeaStitchStore::add(FeaStitchInst& _fea_stitch)
 {
-    _fea_stitch_store.insert(std::make_pair(_fea_stitch.UID, _fea_stitch));
+    _fea_stitch_store.insert(std::make_pair(_fea_stitch.UID(), _fea_stitch));
 
 }
 
@@ -174,7 +193,7 @@ bool FeaStitchStore::remove(const int &LCId)
 {
     FeaStitchStoreIt it = _fea_stitch_store.begin();
     for (; it != _fea_stitch_store.end(); it++) {
-       if (it->second.LCId == LCId) {
+       if (it->second.LCId() == LCId) {
         _fea_stitch_store.erase(it);
         return true;
 
@@ -187,7 +206,7 @@ bool FeaStitchStore::remove(const IPvX &ip)
 {
     FeaStitchStoreIt it = _fea_stitch_store.begin();
     for (; it != _fea_stitch_store.end(); it++) {
-       if (it->second.ip == ip) {
+       if (it->second.ip() == ip) {
         _fea_stitch_store.erase(it);
         return true;
 
