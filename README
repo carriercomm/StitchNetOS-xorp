@@ -127,7 +127,7 @@
         will talk to.
 
     * To confirm that the XORP processes are running correctly, run the command:
-        netstat -t | grep "LISTEN"
+        netstat -a | grep "LISTEN"
 
         You should see the finder (xorp_rtrmgr) listening on port 19999. Also
         you should find the xorp_fea processes listening on a bunch of ports >

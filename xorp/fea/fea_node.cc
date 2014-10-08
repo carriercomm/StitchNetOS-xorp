@@ -382,11 +382,11 @@ void FeaNode::register_fea_stitch_inst(string& UID, IPvX &ip)
 	int slot = 0;
 
     if ((inst = _fea_stitch_store.find_fea_stitch(UID)) != NULL) {
-        XLOG_INFO("FEA stitch instance with UID:%s already registerd with LC-ID:%d", UID.c_str(), inst->LCId);
+        XLOG_INFO("FEA stitch instance with UID:%s already registerd with LC-ID:%d", UID.c_str(), inst->LCId());
         /* The IP address for the FEA stitch instance might have changed so
          * reset it
          */
-        inst->ip = ip;
+        inst->set_ip(ip);
 		inst->resetNextAvailPortNum();
         return;
     } else {

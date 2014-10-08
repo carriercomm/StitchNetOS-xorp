@@ -29,6 +29,7 @@
 
 #include "xrl/targets/fea_base.hh"
 #include "xrl/interfaces/fea_stitch_xif.hh"
+#include "xrl/interfaces/stitch_port_mirror_xif.hh"
 #include "xrl_fib_client_manager.hh"
 
 class EventLoop;
@@ -2744,6 +2745,17 @@ public:
     XrlCmdError fea_stitch_ifconfig_0_1_upload_port_information(const string& uid,
 				const string& ifname, const uint32_t& port_num, const uint32_t& ifindex, const Mac& mac, const uint32_t& flags,
 				const uint32_t& mtu, const uint64_t& speed, const bool& no_carrier, string& ret_ifname, uint32_t& ret_port_num);
+    /*
+     * Stitch port replicator
+     */
+    XrlCmdError stitch_port_replicator_0_1_register_stitch_port_mirror(
+            // Input values,
+            const string&   clientname) ;
+    XrlCmdError stitch_port_replicator_0_1_unregister_stitch_port_mirror(
+            // Input values,
+            const string&   clientname) ;
+    //call-back for stitch port mirror.
+    void stitch_fea_port_mirror_cb(const XrlError& xrl_error);
 
 private:
     /**
@@ -2785,6 +2797,15 @@ private:
 
     EventLoop&		_eventloop;	// The event loop to use
     FeaNode&		_fea_node;	// The corresponding FeaNode
+    list<string> _stitch_port_observers; // Observers of the stitch port.
+
+    typedef struct stitch_port_cmds_s {
+        string client_name;
+        string ifname;
+        bool add;
+    }stitch_port_cmds_t;
+
+    list<stitch_port_cmds_t> _stitch_port_cmds;
 
     XrlRouter&		       	_xrl_router;
 #ifndef XORP_DISABLE_PROFILE
@@ -2801,6 +2822,7 @@ private:
     IoTcpUdpManager&		_io_tcpudp_manager;
     LibFeaClientBridge&		_lib_fea_client_bridge;
 	XrlFeaStitchV0p1Client _stitch_lc_fea;
+    XrlStitchPortMirrorV0p1Client _stitch_port_mirror;
 
     bool	_is_running;	// True if the service is running
     bool	_is_shutdown_received; // True if shutdown XRL request received

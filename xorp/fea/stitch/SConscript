@@ -71,7 +71,8 @@ env.AppendUnique(LIBS = [
         'xif_finder_event_notifier',
         'xst_fea_stitch',
         'xif_fea_stitch_register',
-	'xif_fea_stitch_ifconfig',
+    	'xif_fea_stitch_ifconfig',
+        'xif_stitch_port_mirror',
         'xif_fea_ifmgr_mirror',   # XXX?
         'xif_fea_ifmgr_replicator', # XXX?
         'xst_fea_ifmgr_mirror', # XXX?

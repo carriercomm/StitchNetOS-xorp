@@ -89,6 +89,7 @@ XrlFeaTarget::XrlFeaTarget(EventLoop&			eventloop,
       _io_tcpudp_manager(fea_node.io_tcpudp_manager()),
       _lib_fea_client_bridge(lib_fea_client_bridge),
       _stitch_lc_fea(&xrl_router),
+      _stitch_port_mirror(&xrl_router),
       _is_running(false),
       _is_shutdown_received(false)
 #ifdef XORP_USE_CLICK
@@ -4861,6 +4862,30 @@ void XrlFeaTarget::stitch_fea_print_hello_world_cb(const XrlError& xrl_error)
         break;
    }
 }
+
+void XrlFeaTarget::stitch_fea_port_mirror_cb(const XrlError& xrl_error) 
+{
+   switch(xrl_error.error_code()) {
+    case OKAY:
+        break;
+    case COMMAND_FAILED:
+        XLOG_INFO("Unable to deliver message to port-mirror");
+        break;
+    default:
+        XLOG_INFO("FEA<-->port-mirror returned unknown error");
+        break;
+   }
+
+   bool success = false;
+   /* Send the next port command to the port mirror*/
+   while (!_stitch_port_cmds.empty() && !success) {
+       stitch_port_cmds_t& cmd = _stitch_port_cmds.front();
+       success = _stitch_port_mirror.send_port_add(cmd.client_name.c_str(), cmd.ifname, 
+               callback(this, &XrlFeaTarget::stitch_fea_port_mirror_cb));
+       _stitch_port_cmds.pop_front();
+   }
+}
+
 XrlCmdError
 XrlFeaTarget::fea_stitch_register_0_1_register_fea_stitch(
         const IPv4& ip4 , const string& iUID, string &UID)
@@ -4903,8 +4928,9 @@ XrlFeaTarget::fea_stitch_ifconfig_0_1_upload_port_information(
 	FeaStitchInst* inst;
 	unsigned int port = port_num;
 	ret_port_num = 0;
+	UNUSED(ifindex);
 
-    if ((inst = _fea_node.feaStitchStore().find_fea_stitch(uid)) == NULL) {
+    if ((inst = _fea_node.fea_stitch_store().find_fea_stitch(uid)) == NULL) {
 		string em = c_format("Could not find fea stitch instance with uid %s", uid.c_str());
 		return XrlCmdError::COMMAND_FAILED(em.c_str());
     }
@@ -4915,7 +4941,7 @@ XrlFeaTarget::fea_stitch_ifconfig_0_1_upload_port_information(
 	}
 	ret_ifname = ifname;
 	char numstr[64];
-	sprintf(numstr, "%d/%d", inst->LCId, port);
+	sprintf(numstr, "%d/%d", inst->LCId(), port);
 	frontend_ifname =  numstr;
 
 	IfTreeInterface *iface = _fea_node.port_tree().find_interface(frontend_ifname);
@@ -4925,7 +4951,7 @@ XrlFeaTarget::fea_stitch_ifconfig_0_1_upload_port_information(
 		iface = _fea_node.port_tree().find_interface(frontend_ifname);
 	}
 
-	iface->set_pif_index(ifindex);
+	iface->set_pif_index(0);
     iface->set_enabled(flags & IFF_UP);
     iface->set_mtu(mtu);
     iface->set_mac(mac);
@@ -4935,5 +4961,74 @@ XrlFeaTarget::fea_stitch_ifconfig_0_1_upload_port_information(
 
     return XrlCmdError::OKAY();
 }
+
+XrlCmdError 
+XrlFeaTarget::stitch_port_replicator_0_1_register_stitch_port_mirror(const string&   clientname) 
+{
+    list<string>::iterator it;
+    string error_msg;  
+    stitch_port_cmds_t cmd;
+
+    XLOG_INFO("Received registration request from:%s", clientname.c_str());
+
+    //defensive check to make sure the observer doesn't already exist.
+    for (it = _stitch_port_observers.begin(); it != _stitch_port_observers.end(); it++) {
+        if (*it == clientname) {
+            error_msg = "Observer already exists"; 
+            return XrlCmdError::COMMAND_FAILED(error_msg);
+        }
+    }
+
+    //add the observer.
+    _stitch_port_observers.push_back(clientname);
+    //walk the port tree and send all the existing port info back to the observer.
+    IfTree& port_tree = _fea_node.port_tree();
+    IfTree::IfMap::iterator ii; 
+    for (ii = port_tree.interfaces().begin(); ii != port_tree.interfaces().end(); ++ii) { 
+        //just to one port right now.
+        const IfTreeInterface& fi = *(ii->second); 
+        cmd.client_name = clientname;
+        cmd.ifname = fi.ifname();
+        cmd.add = true;
+        _stitch_port_cmds.push_back(cmd);
+    }
+
+    //also put a NULL interface.
+    cmd.client_name = clientname;
+    cmd.ifname = "NULL";
+    cmd.add = true;
+    _stitch_port_cmds.push_back(cmd);
+
+    /* Pop the first of the port cmds and send an add to the observer.*/
+    bool success = false;
+    while (!_stitch_port_cmds.empty() && !success) {
+        stitch_port_cmds_t& ref_cmd = _stitch_port_cmds.front();
+        success = _stitch_port_mirror.send_port_add(cmd.client_name.c_str(), ref_cmd.ifname, 
+                callback(this, &XrlFeaTarget::stitch_fea_port_mirror_cb));
+        _stitch_port_cmds.pop_front();
+    }
+    return XrlCmdError::OKAY();
+}
+
+XrlCmdError
+XrlFeaTarget:: stitch_port_replicator_0_1_unregister_stitch_port_mirror( 
+        const string&   clientname) {
+    list<string>::iterator it;
+    string error_msg;  
+    //defensive check to make sure the observer doesn't already exist.
+    XLOG_INFO("Received un-registration request from:%s", clientname.c_str());
+    for (it = _stitch_port_observers.begin(); it != _stitch_port_observers.end(); it++) {
+        if (*it == clientname) {
+            _stitch_port_observers.erase(it);
+            return XrlCmdError::OKAY();
+        }
+    }
+    //we couldn't find the element.
+    error_msg = "Couldn't find the element";
+    return XrlCmdError::COMMAND_FAILED(error_msg);
+
+
+}
+
 
 #endif //profile

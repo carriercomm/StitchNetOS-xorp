@@ -1,0 +1,10 @@
+/*
+ * Interface implemented by processes interested in receiving port status of 
+ * stitch ports.
+ */
+
+
+interface stitch_port_mirror/0.1 {
+    port_add ?  port_name:txt ;
+    port_remove ?  port_name:txt ; 
+}

@@ -1,0 +1,8 @@
+#include "stitch_port_mirror.xif"
+
+/**
+ * This target is used by the stitch port manager to provide local
+ * copies of the stitch ports to xorp processes.
+ */
+
+target stitch_portmgr_mirror implements stitch_port_mirror/0.1;

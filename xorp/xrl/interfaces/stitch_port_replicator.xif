@@ -1,0 +1,11 @@
+/*
+ * Interface implemented by processes interested in acting as observers for 
+ * of stitch ports.
+ * stitch ports.
+ */
+
+
+interface stitch_port_replicator/0.1 {
+    register_stitch_port_mirror ? client_name:txt;
+    unregister_stitch_port_mirror ? client_name:txt;
+}

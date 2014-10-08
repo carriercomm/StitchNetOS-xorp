@@ -28,10 +28,15 @@ class FeaStitchInst
         FeaStitchInst(string &UID, int LCId, IPvX &ip);
 		unsigned int getNextAvailPortNum();
 		void resetNextAvailPortNum();
-        string UID;
-        int LCId;
-        IPvX ip;
-		unsigned int last_port;
+        string UID() const {return _UID;};
+        int LCId() const { return _LCId;};
+        IPvX ip() const { return _ip;};
+        void set_ip(IPvX i_ip) { _ip = i_ip;};
+    private:
+        string _UID;
+        int _LCId;
+        IPvX _ip;
+		unsigned int _last_port;
 };
 
 typedef map<std::string, FeaStitchInst>::iterator FeaStitchStoreIt;
@@ -55,6 +60,10 @@ class FeaStitchStore
        FeaStitchInst* find_fea_stitch(const string& UID);
        FeaStitchInst* find_fea_stitch(const int LCId);
        FeaStitchInst* find_fea_stitch(const IPvX& ip);
+       /*
+        * Get the stitch-fea instance which owns this interface.
+        */
+       FeaStitchInst* get_intf_inst(const string ifname);
        void add(string &UID, int LCId, IPvX &ip);
        void add(FeaStitchInst& _fea_stitch);
        bool remove(const string &UID);

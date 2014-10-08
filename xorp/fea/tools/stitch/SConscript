@@ -20,12 +20,7 @@
 import os
 Import('env')
 
-subdirs = [
-    'stitch'
-    ]
-
 env = env.Clone()
-SConscript(dirs = subdirs, exports='env')
 
 
 is_shared = env.has_key('SHAREDLIBS')
@@ -47,10 +42,11 @@ env.AppendUnique(LIBPATH = [
     ])
 
 env.AppendUnique(LIBS = [
-    'xorp_fea_client',
-    'xif_fea_ifmgr_mirror',
-    'xif_fea_ifmgr_replicator',
-    'xst_fea_ifmgr_mirror',
+#    'xorp_fea_client',
+#    'xif_fea_ifmgr_mirror',
+#    'xif_fea_ifmgr_replicator',
+    'xst_stitch_portmgr_mirror',
+    'xif_stitch_port_replicator',
     'xorp_ipc',
     'xorp_core',
     'xorp_proto',
@@ -83,16 +79,19 @@ env.Replace(RPATH = [
     env.Literal(env['xorp_tool_rpath'])
 ])
 
-showifsrcs = [
-	'show_interfaces.cc'
+
+showstitchportsrcs = [
+    'show_stitch_ports.cc'
     ]
 
-showif = env.Program(target = 'fea_show_interfaces', source = showifsrcs)
+print "About to compile fea_show_stitch_ports"
+
+showstitchports = env.Program(target = 'fea_show_stitch_ports', source = showstitchportsrcs)
 if env['enable_builddirrun']:
-    for obj in showif:
-        env.AddPostAction(showif,
+    for obj in showstitchports:
+        env.AddPostAction(showstitchports,
             env.Copy(obj.abspath,
                         os.path.join(env['xorp_alias_tooldir'], str(obj))))
-env.Alias('install', env.InstallProgram(env['xorp_tooldir'], showif))
+env.Alias('install', env.InstallProgram(env['xorp_tooldir'], showstitchports))
 
-Default(showif)
+Default(showstitchports)
