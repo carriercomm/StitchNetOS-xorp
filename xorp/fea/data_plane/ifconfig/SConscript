@@ -54,6 +54,7 @@ sources = [
 	'ifconfig_set_ioctl.cc',
 	'ifconfig_set_iphelper.cc',
 	'ifconfig_set_netlink_socket.cc',
+	'ifconfig_set_stitch.cc',
 	'ifconfig_vlan_get_linux.cc',
 	'ifconfig_vlan_set_linux.cc',
 	]

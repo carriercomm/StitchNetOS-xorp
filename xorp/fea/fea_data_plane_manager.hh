@@ -7,13 +7,13 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
 // see the GNU General Public License, Version 2, a copy of which can be
 // found in the XORP LICENSE.gpl file.
-// 
+//
 // XORP Inc, 2953 Bunker Hill Lane, Suite 204, Santa Clara, CA 95054, USA;
 // http://xorp.net
 
@@ -22,6 +22,9 @@
 #ifndef __FEA_FEA_DATA_PLANE_MANAGER_HH__
 #define __FEA_FEA_DATA_PLANE_MANAGER_HH__
 
+#include "xrl/interfaces/fea_stitch_xif.hh"
+#include "libxipc/xrl_router.hh"
+#include "xrl/interfaces/fea_stitch_xif.hh"
 
 
 class EventLoop;
@@ -66,7 +69,7 @@ public:
      * @param fea_node the @ref FeaNode this manager belongs to.
      * @param manager_name the data plane manager name.
      */
-    FeaDataPlaneManager(FeaNode& fea_node, const string& manager_name);
+    FeaDataPlaneManager(FeaNode& fea_node, const string& manager_name, XrlRouter& _xrl_router);
 
     /**
      * Virtual destructor.
@@ -145,21 +148,21 @@ public:
 
     /**
      * Get the event loop this instance is added to.
-     * 
+     *
      * @return the event loop this instance is added to.
      */
     EventLoop&	eventloop();
 
     /**
      * Return true if the underlying system supports IPv4.
-     * 
+     *
      * @return true if the underlying system supports IPv4, otherwise false.
      */
     virtual bool have_ipv4() const;
 
     /**
      * Return true if the underlying system supports IPv6.
-     * 
+     *
      * @return true if the underlying system supports IPv6, otherwise false.
      */
     virtual bool have_ipv6() const;
@@ -378,6 +381,14 @@ public:
      */
     virtual void deallocate_io_tcpudp(IoTcpUdp* io_tcpudp);
 
+	FeaNode& fea_node() {return _fea_node;}
+
+	//TODO: Find out if there is a better way
+	virtual XrlFeaStitchV0p1Client& stitch_lc_fea() {
+		XrlFeaStitchV0p1Client* dummy = new XrlFeaStitchV0p1Client(&_xrl_router);
+		return *dummy;
+	}
+
 protected:
     /**
      * Register all plugins.
@@ -398,7 +409,7 @@ protected:
     int stop_all_plugins(string& error_msg);
 
     FeaNode&	_fea_node;
-
+	XrlRouter&   _xrl_router;
     //
     // The plugins
     //

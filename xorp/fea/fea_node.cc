@@ -7,13 +7,13 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
 // see the GNU General Public License, Version 2, a copy of which can be
 // found in the XORP LICENSE.gpl file.
-// 
+//
 // XORP Inc, 2953 Bunker Hill Lane, Suite 204, Santa Clara, CA 95054, USA;
 // http://xorp.net
 
@@ -33,6 +33,7 @@
 
 #include "libcomm/comm_api.h"
 
+#include "fea/data_plane/managers/fea_data_plane_manager_stitch.hh"
 #include "fea/data_plane/managers/fea_data_plane_manager_bsd.hh"
 #ifdef XORP_USE_CLICK
 #include "fea/data_plane/managers/fea_data_plane_manager_click.hh"
@@ -49,8 +50,9 @@
 #include "profile_vars.hh"
 #endif
 
-FeaNode::FeaNode(EventLoop& eventloop, FeaIo& fea_io, bool is_dummy)
+FeaNode::FeaNode(EventLoop& eventloop, FeaIo& fea_io, bool is_dummy, XrlRouter& xrl_router)
     : _eventloop(eventloop),
+      _xrl_router(xrl_router),
       _is_running(false),
       _is_dummy(is_dummy),
       _ifconfig(*this),
@@ -283,15 +285,17 @@ FeaNode::load_data_plane_managers(string& error_msg)
 
     if (is_dummy()) {
 #ifdef XORP_USE_FEA_DUMMY
-	fea_data_plane_manager = new FeaDataPlaneManagerDummy(*this);
+	fea_data_plane_manager = new FeaDataPlaneManagerDummy(*this, xrl_router());
 #endif
     } else {
-#if defined(HOST_OS_MACOSX) || defined(HOST_OS_DRAGONFLYBSD) || defined(HOST_OS_FREEBSD) || defined(HOST_OS_NETBSD) || defined(HOST_OS_OPENBSD)
-	fea_data_plane_manager = new FeaDataPlaneManagerBsd(*this);
+#ifdef FEA_STITCH_ENABLED
+	fea_data_plane_manager = new FeaDataPlaneManagerStitch(*this, xrl_router());
+#elif defined(HOST_OS_MACOSX) || defined(HOST_OS_DRAGONFLYBSD) || defined(HOST_OS_FREEBSD) || defined(HOST_OS_NETBSD) || defined(HOST_OS_OPENBSD)
+	fea_data_plane_manager = new FeaDataPlaneManagerBsd(*this, xrl_router());
 #elif defined(HOST_OS_LINUX)
-	fea_data_plane_manager = new FeaDataPlaneManagerLinux(*this);
+	fea_data_plane_manager = new FeaDataPlaneManagerLinux(*this, xrl_router());
 #elif defined(HOST_OS_WINDOWS)
-	fea_data_plane_manager = new FeaDataPlaneManagerWindows(*this);
+	fea_data_plane_manager = new FeaDataPlaneManagerWindows(*this, xrl_router());
 #else
 #error "No data plane manager to load: unknown system"
 #endif
@@ -321,7 +325,7 @@ FeaNode::load_data_plane_managers(string& error_msg)
 	unload_data_plane_managers(dummy_error_msg);
 	return (XORP_ERROR);
     }
-
+#ifdef Simranjit
     if (io_link_manager().register_data_plane_manager(fea_data_plane_manager,
 						      true)
 	!= XORP_OK) {
@@ -351,7 +355,7 @@ FeaNode::load_data_plane_managers(string& error_msg)
 	unload_data_plane_managers(dummy_error_msg);
 	return (XORP_ERROR);
     }
-
+#endif
     return (XORP_OK);
 }
 

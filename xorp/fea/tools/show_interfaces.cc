@@ -669,7 +669,7 @@ static void
 interface_monitor_main(const string& finder_hostname, uint16_t finder_port,
 		       const string& print_iface_name)
 {
-    string process_name;
+	string process_name;
     process_name = c_format("interface_monitor<%d>", XORP_INT_CAST(getpid()));
 
     //

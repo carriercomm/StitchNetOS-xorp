@@ -25,4 +25,15 @@ interface fea_stitch/0.1 {
 	 * disable it.
 	 */
 	enable_log_trace_all	? enable:bool;
+
+	add_addr ? ifname:txt \
+		 & vifname:txt \
+		 & if_index:u32 \
+		 & addr:ipv4 \
+		 & prefix_len:u32 \
+		 & is_broadcast:bool \
+		 & broadcast_addr:ipv4 \
+		 & is_point_to_point:bool \
+		 & endpoint_addr: ipv4 \
+		 ->error_msg:txt;
 }

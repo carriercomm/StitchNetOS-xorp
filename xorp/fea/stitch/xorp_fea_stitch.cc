@@ -164,6 +164,7 @@ fea_stitch_main(const string& finder_hostname, uint16_t finder_port) {
     XLOG_INFO("Stitch FEA:%s ready for execution.", UID.c_str());
 
     //Read all the physical ports and build the port-map
+    xrl_fea_stitch_node->fea_stitch_node().stitch_dpm_linux()->ifconfig_get()->pull_config(NULL, xrl_fea_stitch_node->fea_stitch_node().if_tree());
     xrl_fea_stitch_node->upload_port_information_to_fea();
     //
     // Main loop

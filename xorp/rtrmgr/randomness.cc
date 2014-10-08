@@ -7,13 +7,13 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
 // see the GNU General Public License, Version 2, a copy of which can be
 // found in the XORP LICENSE.gpl file.
-// 
+//
 // XORP Inc, 2953 Bunker Hill Lane, Suite 204, Santa Clara, CA 95054, USA;
 // http://xorp.net
 
@@ -350,7 +350,7 @@ RandomGen::get_random_bytes(size_t len, uint8_t* buf)
     XLOG_ASSERT(len < RAND_POOL_SIZE/100);
 
     if (_urandom_exists) {
-	FILE *file = fopen("/dev/urandom", "r");    
+	FILE *file = fopen("/dev/urandom", "r");
 	if (file == NULL) {
 	    XLOG_FATAL("Failed to open /dev/urandom");
 	} else {
@@ -364,7 +364,7 @@ RandomGen::get_random_bytes(size_t len, uint8_t* buf)
 	return;
     }
     if (_random_exists) {
-	FILE *file = fopen("/dev/random", "r");   
+	FILE *file = fopen("/dev/random", "r");
 	if (file == NULL) {
 	    XLOG_FATAL("Failed to open /dev/random");
 	} else {

@@ -4850,7 +4850,7 @@ XrlFeaTarget::profile_0_1_list(string& info)
  * Stitch management interfaces
  */
 
-void XrlFeaTarget::stitch_fea_print_hello_world_cb(const XrlError& xrl_error) 
+void XrlFeaTarget::stitch_fea_print_hello_world_cb(const XrlError& xrl_error)
 {
    switch(xrl_error.error_code()) {
     case OKAY:
@@ -4867,7 +4867,7 @@ XrlFeaTarget::fea_stitch_register_0_1_register_fea_stitch(
 {
     IPvX ip(ip4);
     string check_UID = iUID;
-    XLOG_INFO("Got a registration request from FEA stitch module:%s with UID:%s", 
+    XLOG_INFO("Got a registration request from FEA stitch module:%s with UID:%s",
             ip.str().c_str(), iUID.c_str());
     /*
      * Check if the UID field is already set. If it is set, then check if we
@@ -4880,7 +4880,7 @@ XrlFeaTarget::fea_stitch_register_0_1_register_fea_stitch(
         string hello_str = "Hi " + iUID;
         bool success;
         //This has already been registered say hello.
-        success = _stitch_lc_fea.send_print_hello_world(iUID.c_str(), hello_str, 
+        success = _stitch_lc_fea.send_print_hello_world(iUID.c_str(), hello_str,
                 callback(this, &XrlFeaTarget::stitch_fea_print_hello_world_cb));
         if (!success) {
             XLOG_INFO("Unable to ping stitch FEA:%s", iUID.c_str());

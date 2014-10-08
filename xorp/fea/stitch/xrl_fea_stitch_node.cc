@@ -7,7 +7,7 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
@@ -29,7 +29,7 @@ XrlFeaStitchNode::XrlFeaStitchNode(EventLoop& eventloop,
             XrlStdRouter(eventloop, UID.c_str(), finder_hostname.c_str(), finder_port),
             XrlFeastitchTargetBase(&xrl_router()),
              _xrl_fea_io(eventloop, *this, finder_target),
-             _fea_stitch_node(eventloop,"stitch_port_tree", "stitch_if_tree", _xrl_fea_io),
+             _fea_stitch_node(eventloop,"stitch_port_tree", "stitch_if_tree", _xrl_fea_io, xrl_router()),
             _finder_target(finder_target),
             _fea_target(fea_target),
             _xrl_fea_stitch_ifconfig(&xrl_router()),
@@ -63,7 +63,7 @@ void XrlFeaStitchNode::fea_stitch_register_cb(const XrlError& xrl_error, const s
 }
 
 
-int XrlFeaStitchNode::init(void) 
+int XrlFeaStitchNode::init(void)
 {
     bool success = true;
     IPv4 ip;
@@ -79,12 +79,12 @@ int XrlFeaStitchNode::init(void)
     }
 
     XLOG_INFO("Successfully sent the registration request to FEA");
-    
+
     return XORP_OK;
 }
 
 /**
- * Start the node. Read the physical ports and build a port map. 
+ * Start the node. Read the physical ports and build a port map.
  */
 int XrlFeaStitchNode::startup(void)
 {
@@ -161,16 +161,16 @@ void XrlFeaStitchNode::upload_port_information_to_fea_cb(const XrlError& xrl_err
 int XrlFeaStitchNode::upload_port_information_to_fea(void)
 {
     bool success = true;
-	IfTree *iftree = new IfTree("lc-system-config");
+	//IfTree *iftree = new IfTree("lc-system-config");
 	IfTree::IfMap::const_iterator iter;
 	unsigned int port_num;
 
 	XLOG_INFO("Uploading port information to CP-FEA");
 
-	_fea_stitch_node.stitch_dpm_linux()->ifconfig_get()->pull_config(NULL, *iftree);
 
-    for (iter = iftree->interfaces().begin();
-	 	 iter != iftree->interfaces().end(); ++iter) {
+
+    for (iter = fea_stitch_node().if_tree().interfaces().begin();
+	 	 iter != fea_stitch_node().if_tree().interfaces().end(); ++iter) {
 
 		const IfTreeInterface& iface = *(iter->second);
 		port_num = _fea_stitch_node.find_port_num_from_intf_name(iface.ifname());
@@ -187,4 +187,40 @@ int XrlFeaStitchNode::upload_port_information_to_fea(void)
 	}
 
     return XORP_OK;
+}
+
+XrlCmdError XrlFeaStitchNode::fea_stitch_0_1_add_addr(
+	const string&	ifname,
+	const string&	vifname,
+	const uint32_t&	if_index,
+	const IPv4&	addr,
+	const uint32_t&	prefix_len,
+	const bool&	is_broadcast,
+	const IPv4&	broadcast_addr,
+	const bool&	is_point_to_point,
+	const IPv4&	endpoint_addr,
+	// Output values,
+	string&	error_msg)
+{
+	UNUSED(if_index);
+	UNUSED(vifname);
+
+	string real_intf_name = fea_stitch_node().port_num_to_intf_map()[atoi(ifname.c_str())];
+	XLOG_INFO("FEA stitch add addr intf num %s name %s", ifname.c_str(), real_intf_name.c_str());
+
+	IfTreeInterface *config_iface = fea_stitch_node().if_tree().find_interface(real_intf_name);
+
+	//front=end anyways ensures that the ifname and the vifname are the same
+	IfTreeVif *config_vif = fea_stitch_node().if_tree().find_vif(real_intf_name, real_intf_name);
+
+	IfTreeAddr4 *config_addr = new IfTreeAddr4(addr);
+	config_addr->set_prefix_len(prefix_len);
+	config_addr->set_broadcast(is_broadcast);
+	config_addr->set_bcast(broadcast_addr);
+	config_addr->set_point_to_point(is_point_to_point);
+	config_addr->set_endpoint(endpoint_addr);
+
+	_fea_stitch_node.stitch_dpm_linux()->ifconfig_set()->config_add_address(NULL, NULL, NULL, *config_iface, *config_vif, *config_addr, error_msg);
+
+    return XrlCmdError::OKAY();
 }

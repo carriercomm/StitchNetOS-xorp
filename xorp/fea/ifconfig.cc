@@ -7,13 +7,13 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
 // see the GNU General Public License, Version 2, a copy of which can be
 // found in the XORP LICENSE.gpl file.
-// 
+//
 // XORP Inc, 2953 Bunker Hill Lane, Suite 204, Santa Clara, CA 95054, USA;
 // http://xorp.net
 
@@ -57,7 +57,7 @@ map_changes(const IfTreeItem::State&		fci,
     default:
 	XLOG_FATAL("Unknown IfTreeItem::State");
 	break;
-    }  
+    }
     return true;
 }
 
@@ -179,8 +179,8 @@ int IfConfig::add_interface(const char* ifname) {
 	}
     }
     return XORP_OK;
-}   
-    
+}
+
 int IfConfig::remove_interface(const char* ifname) {
     //XLOG_WARNING("Remove interface: %s\n", ifname);
     user_config().remove_interface(ifname);
@@ -826,7 +826,7 @@ IfConfig::pull_config(const char* ifname, int if_index)
 	    // Pull all
 	    // Clear the old state
 	    _system_config.clear();
-	    
+
 	    ifconfig_get->pull_config(&_user_config, _system_config);
 	}
     }

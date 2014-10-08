@@ -27,7 +27,7 @@ class FeaStitchDataPlaneIF;
 class FeaStitchNode :public FeaNode{
     public:
         FeaStitchNode(EventLoop &event_loop, const string& _pt_name, const string& _ift_name,
-        FeaIo& fea_io);
+        FeaIo& fea_io, XrlRouter& xrl_router);
         int startup();
         int shutdown();
         FeaPortTree& get_port_map() { return _port_tree;};
@@ -35,7 +35,8 @@ class FeaStitchNode :public FeaNode{
 		void init_port_num_to_intf_name_map();
 		void insert_port_num_to_intf_name_map(int port, string intf_name);
 		uint32_t find_port_num_from_intf_name(const string intf_name);
-
+		IfTree& if_tree() {return _if_tree;}
+		map<uint32_t, string>& port_num_to_intf_map() {return _port_num_to_intf_map;}
     protected:
         //port tree
         FeaPortTree _port_tree;

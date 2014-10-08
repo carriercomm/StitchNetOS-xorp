@@ -17,11 +17,12 @@
 #include "fea_stitch_node.hh"
 #include "fea/data_plane/managers/fea_data_plane_manager_linux.hh"
 FeaStitchNode::FeaStitchNode(EventLoop &event_loop, const string& _pt_name,
-        const string& _ift_name, FeaIo&_fea_io):FeaNode(event_loop, _fea_io, false),
+        const string& _ift_name, FeaIo&_fea_io, XrlRouter& xrl_router):
+    FeaNode(event_loop, _fea_io, false, xrl_router),
     _port_tree(_pt_name),
     _if_tree(_ift_name.c_str())
 {
-    _stitch_dpm_linux = new FeaDataPlaneManagerLinux(*this);
+    _stitch_dpm_linux = new FeaDataPlaneManagerLinux(*this, xrl_router);
 	init_port_num_to_intf_name_map();
 }
 

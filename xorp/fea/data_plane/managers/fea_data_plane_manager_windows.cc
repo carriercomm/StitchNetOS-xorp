@@ -7,13 +7,13 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
 // see the GNU General Public License, Version 2, a copy of which can be
 // found in the XORP LICENSE.gpl file.
-// 
+//
 // XORP Inc, 2953 Bunker Hill Lane, Suite 204, Santa Clara, CA 95054, USA;
 // http://xorp.net
 
@@ -68,8 +68,8 @@ extern "C" void destroy(FeaDataPlaneManager* fea_data_plane_manager)
 #endif // 0
 
 
-FeaDataPlaneManagerWindows::FeaDataPlaneManagerWindows(FeaNode& fea_node)
-    : FeaDataPlaneManager(fea_node, "Windows")
+FeaDataPlaneManagerWindows::FeaDataPlaneManagerWindows(FeaNode& fea_node, XrlRouter& xrl_router)
+    : FeaDataPlaneManager(fea_node, "Windows", xrl_router)
 {
 }
 

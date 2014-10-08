@@ -7,7 +7,7 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
@@ -39,7 +39,7 @@ enum {
 //The top-level class that wraps-up everything together under one roof
 //This is the entry point for all XRL calls into FEA stitch.
 //
-class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase 
+class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
 {
     public:
         XrlFeaStitchNode(EventLoop& eventloop,
@@ -57,13 +57,13 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
          */
         int init();
         /*
-         * Startup the node. 
+         * Startup the node.
          * @return XORP_OK on success, otherwise XORP_ERROR
          */
         int startup();
 
         /**
-         * Shutdown the node. De-register with FEA and the finder. 
+         * Shutdown the node. De-register with FEA and the finder.
          *
          * @return XORP_OK on success, otherwise XORP_ERROR.
          */
@@ -94,6 +94,7 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
 
 		void upload_port_information_to_fea_cb(const XrlError& xrl_error, const string* ret_ifname, const uint32_t* port_num);
 		int upload_port_information_to_fea(void);
+		FeaStitchNode& fea_stitch_node() {return _fea_stitch_node;}
     protected:
         //
         // XRL target methods
@@ -104,6 +105,19 @@ class XrlFeaStitchNode : public XrlStdRouter, public XrlFeastitchTargetBase
         XrlCmdError fea_stitch_0_1_stop_fea_stitch();
         XrlCmdError fea_stitch_0_1_print_hello_world(const string&   str);
         XrlCmdError fea_stitch_0_1_enable_log_trace_all( const bool& enable);
+	    XrlCmdError fea_stitch_0_1_add_addr(
+		// Input values,
+		const string&	ifname,
+		const string&	vifname,
+		const uint32_t&	if_index,
+		const IPv4&	addr,
+		const uint32_t&	prefix_len,
+		const bool&	is_broadcast,
+		const IPv4&	broadcast_addr,
+		const bool&	is_point_to_point,
+		const IPv4&	endpoint_addr,
+		// Output values,
+		string&	error_msg);
         XrlFeaIo _xrl_fea_io;
         FeaStitchNode _fea_stitch_node;
     private:

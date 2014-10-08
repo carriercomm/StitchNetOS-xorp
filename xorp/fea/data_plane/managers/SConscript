@@ -34,6 +34,7 @@ sources = [
 	'fea_data_plane_manager_bsd.cc',
 	'fea_data_plane_manager_linux.cc',
 	'fea_data_plane_manager_windows.cc',
+	'fea_data_plane_manager_stitch.cc',
 	]
 
 if env['enable_click']:

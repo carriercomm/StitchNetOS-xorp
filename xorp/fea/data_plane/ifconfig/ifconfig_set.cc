@@ -137,7 +137,12 @@ IfConfigSet::push_config(const IfTree& iftree)
 	if (config_iface.default_system_config())
 	    continue;
 
-	//
+	//Check against the fea port tree if the port exists in the system
+	//if (ifconfig().fea_node().port_tree().find_interface(config_iface.ifname()) == NULL) {
+	//	XLOG_ERROR("Port %s does not exist in the system", config_iface.ifname().c_str());
+	//    continue;
+	//}
+
 	// Check that the interface is recognized by the system
 	//
 	if (system_iftree.find_interface(config_iface.ifname()) == NULL) {

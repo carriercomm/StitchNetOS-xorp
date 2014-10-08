@@ -7,13 +7,13 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
 // see the GNU General Public License, Version 2, a copy of which can be
 // found in the XORP LICENSE.gpl file.
-// 
+//
 // XORP Inc, 2953 Bunker Hill Lane, Suite 204, Santa Clara, CA 95054, USA;
 // http://xorp.net
 
@@ -53,7 +53,7 @@ XrlFeaNode::XrlFeaNode(EventLoop& eventloop, const string& xrl_fea_targetname,
       _xrl_router(eventloop, xrl_fea_targetname.c_str(),
 		  finder_hostname.c_str(), finder_port),
       _xrl_fea_io(eventloop, _xrl_router, xrl_finder_targetname),
-      _fea_node(eventloop, _xrl_fea_io, is_dummy),
+      _fea_node(eventloop, _xrl_fea_io, is_dummy, _xrl_router),
       _lib_fea_client_bridge(_xrl_router, _fea_node.ifconfig().ifconfig_update_replicator()),
       _xrl_fib_client_manager(_fea_node.fibconfig(), _xrl_router),
       _xrl_io_link_manager(_fea_node.io_link_manager(), _xrl_router),

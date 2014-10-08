@@ -219,6 +219,9 @@ IfConfigSetStitch::config_add_address(const IfTreeInterface* pulled_ifp,
 	slot = ext_ifname.substr(0, ext_ifname.find("/"));
 	port = ext_ifname.substr(ext_ifname.find("/") + 1, ext_ifname.length() - ext_ifname.find("/") - 1);
 
+	XLOG_INFO("Add addr forwarding message to Stitch FEA UID %s",
+		fea_data_plane_manager().fea_node().feaStitchStore().find_fea_stitch(atoi(slot.c_str()))->UID.c_str());
+
 	// Forward the message to the appropriate fea-stitch slot
 	fea_data_plane_manager().stitch_lc_fea().send_add_addr(
 		fea_data_plane_manager().fea_node().feaStitchStore().find_fea_stitch(atoi(slot.c_str()))->UID.c_str(),

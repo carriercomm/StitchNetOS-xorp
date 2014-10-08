@@ -7,13 +7,13 @@
 // 1991 as published by the Free Software Foundation. Redistribution
 // and/or modification of this program under the terms of any other
 // version of the GNU General Public License is not permitted.
-// 
+//
 // This program is distributed in the hope that it will be useful, but
 // WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. For more details,
 // see the GNU General Public License, Version 2, a copy of which can be
 // found in the XORP LICENSE.gpl file.
-// 
+//
 // XORP Inc, 2953 Bunker Hill Lane, Suite 204, Santa Clara, CA 95054, USA;
 // http://xorp.net
 
@@ -40,13 +40,17 @@
 #include "io_tcpudp_manager.hh"
 #include "nexthop_port_mapper.hh"
 #include "fea_stitch_store.hh"
+#include "xrl/interfaces/fea_stitch_xif.hh"
+#include "libxipc/xrl_std_router.hh"
+
+#define FEA_STITCH_ENABLED
 
 class EventLoop;
 class FeaIo;
 
 /**
  * @short The FEA (Forwarding Engine Abstraction) node class.
- * 
+ *
  * There should be one node per FEA instance.
  */
 class FeaNode {
@@ -58,7 +62,7 @@ public:
      * @param fea_io the FeaIo instance to use.
      * @param is_dummy if true, then run the FEA in dummy mode.
      */
-    FeaNode(EventLoop& eventloop, FeaIo& fea_io, bool is_dummy);
+    FeaNode(EventLoop& eventloop, FeaIo& fea_io, bool is_dummy, XrlRouter& xrl_router);
 
     /**
      * Destructor
@@ -67,7 +71,7 @@ public:
 
     /**
      * Startup the service operation.
-     * 
+     *
      * @return XORP_OK on success, otherwise XORP_ERROR.
      */
     virtual int		startup();
@@ -90,28 +94,28 @@ public:
 
     /**
      * Return true if the underlying system supports IPv4.
-     * 
+     *
      * @return true if the underlying system supports IPv4, otherwise false.
      */
     bool have_ipv4() const;
 
     /**
      * Return true if the underlying system supports IPv6.
-     * 
+     *
      * @return true if the underlying system supports IPv6, otherwise false.
      */
     bool have_ipv6() const;
 
     /**
      * Test if running in dummy mode.
-     * 
+     *
      * @return true if running in dummy mode, otherwise false.
      */
     bool	is_dummy() const { return _is_dummy; }
 
     /**
      * Get the event loop this service is added to.
-     * 
+     *
      * @return the event loop this service is added to.
      */
     EventLoop& eventloop() { return (_eventloop); }
@@ -209,12 +213,12 @@ public:
      * @return reference to the FEA I/O instance.
      */
     FeaIo& fea_io() { return (_fea_io); }
-    
+
     /**
-     * Register a specific FEA stitch instance. 
+     * Register a specific FEA stitch instance.
      * @param UID if the FEA stitch instance was allocated a UID this field
      * would have been set. If the FEA does not find the FEA stitch instance in
-     * its database than it will reset the UID to a new value. 
+     * its database than it will reset the UID to a new value.
      * @param LCId The LCId is set to the LC value assigned to this UID.
      * @param IPvX the IP address used by the FEA stitch instance to communicate
      * with the FEA. Ideally we should be able to dervie these values from the
@@ -229,6 +233,8 @@ public:
 	FeaStitchStore& feaStitchStore() { return (_fea_stitch_store); }
 
 	IfTree& port_tree() { return (_port_tree); }
+
+	XrlRouter& xrl_router() {return _xrl_router;}
 
 private:
     /**
@@ -248,6 +254,7 @@ private:
     int unload_data_plane_managers(string& error_msg);
 
     EventLoop&	_eventloop;	// The event loop to use
+	XrlRouter&				_xrl_router;
     bool	_is_running;	// True if the service is running
     bool	_is_dummy;	// True if running in dummy node
 #ifndef XORP_DISABLE_PROFILE
@@ -270,6 +277,7 @@ private:
     FeaIo&			_fea_io;	// The FeaIo entry to use
     FeaStitchStore _fea_stitch_store;
 	IfTree		   _port_tree;
+
 };
 
 #endif // __FEA_FEA_NODE_HH__
